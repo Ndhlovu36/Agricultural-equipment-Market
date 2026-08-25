@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGRICULTURAL EQUIPMENT MARKET - Buy & Sell with Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f0f7f0;color:#222}
+header{background:#1b5e20;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-weight:bold;font-size:19px}
+nav a{color:#fff;margin-left:12px;text-decoration:none;font-weight:600;font-size:14px}
+.hero{background:linear-gradient(135deg,#1b5e20,#66bb6a);color:#fff;padding:55px 20px;text-align:center}
+.btn{background:#ffeb3b;color:#1b5e20;padding:13px 26px;border:none;border-radius:30px;font-weight:bold;cursor:pointer;margin:6px}
+.btn-dark{background:#1b5e20;color:#fff}
+.section{max-width:1150px;margin:auto;padding:30px 15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+.card{background:#fff;border-radius:14px;box-shadow:0 5px 15px rgba(0,0,0,0.07);overflow:hidden;text-align:center;padding-bottom:15px}
+.card img{width:100%;height:170px;object-fit:cover;background:#ddd}
+.card h3{font-size:16px;margin:10px 5px}
+.price{color:#1b5e20;font-weight:bold;font-size:18px}
+.cat{padding:8px 14px;border-radius:20px;border:1px solid #1b5e20;margin:4px;background:#fff;cursor:pointer}
+.cat.active{background:#1b5e20;color:#fff}
+input,select{padding:11px;border-radius:8px;border:1px solid #ccc;margin:5px 0;width:100%}
+.search-bar{max-width:500px;margin:15px auto;display:flex;gap:8px}
+footer{background:#1b5e20;color:#c8e6c9;text-align:center;padding:25px;margin-top:30px}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🚜 AGRI EQUIPMENT MARKET</div>
+<nav><a href="#market">Market</a><a href="legal.html">Legal</a><a href="report.html">Support</a></nav>
+</header>
+
+<div class="hero">
+<h1>AGRICULTURAL EQUIPMENT MARKET</h1>
+<p>New & Used Tractors, Planters, Spares, Trailers - Pay with Pi</p>
+<br>
+<div class="search-bar">
+<input type="text" id="search" placeholder="Search tractor, plough, harvester..." onkeyup="filterSearch()">
+</div>
+<button class="btn" onclick="loginWithPi()">🔐 Login with Pi</button>
+<button class="btn" style="background:#fff" onclick="payWithPi('Cart Checkout')">💳 Checkout with Pi</button>
+<p id="status" style="margin-top:12px;font-weight:bold"></p>
+<div style="margin-top:15px">
+<button class="cat active" onclick="filterCat('all')">All</button>
+<button class="cat" onclick="filterCat('tractor')">Tractors</button>
+<button class="cat" onclick="filterCat('implement')">Implements</button>
+<button class="cat" onclick="filterCat('spare')">Spares</button>
+<button class="cat" onclick="filterCat('trailer')">Trailers</button>
+</div>
+</div>
+
+<div class="section" id="market">
+<h2>Available Equipment</h2><br>
+<div class="grid" id="products">
+
+<div class="card" data-cat="tractor" data-name="John Deere 5075E"><img src="https://via.placeholder.com/400x300?text=John+Deere+Tractor"><h3>John Deere 5075E 75HP</h3><p class="price">π 125</p><p>2021 • 1200hrs • Free State</p><button class="btn-dark btn" onclick="payWithPi('John Deere 5075E - π 125')">Buy with Pi</button></div>
+
+<div class="card" data-cat="implement" data-name="Disc Plough"><img src="https://via.placeholder.com/400x300?text=Disc+Plough"><h3>4-Disc Plough - Heavy Duty</h3><p class="price">π 18</p><p>New • SA Made</p><button class="btn-dark btn" onclick="payWithPi('Disc Plough - π 18')">Buy with Pi</button></div>
+
+<div class="card" data-cat="tractor" data-name="Massey Ferguson 290"><img src="https://via.placeholder.com/400x300?text=Massey+290"><h3>Massey Ferguson 290</h3><p class="price">π 85</p><p>Used • Reconditioned</p><button class="btn-dark btn" onclick="payWithPi('Massey 290 - π 85')">Buy with Pi</button></div>
+
+<div class="card" data-cat="trailer" data-name="Cattle Trailer"><img src="https://via.placeholder.com/400x300?text=Cattle+Trailer"><h3>12M Cattle Trailer</h3><p class="price">π 32</p><p>2023 • Double Axle</p><button class="btn-dark btn" onclick="payWithPi('Cattle Trailer - π 32')">Buy with Pi</button></div>
+
+<div class="card" data-cat="implement" data-name="Planter 4 Row"><img src="https://via.placeholder.com/400x300?text=Planter"><h3>4-Row Maize Planter</h3><p class="price">π 22</p><p>Precision planting</p><button class="btn-dark btn" onclick="payWithPi('Planter 4 Row - π 22')">Buy with Pi</button></div>
+
+<div class="card" data-cat="spare" data-name="Tractor Tyres"><img src="https://via.placeholder.com/400x300?text=Tyres"><h3>Rear Tractor Tyres 16.9-30</h3><p class="price">π 6.5</p><p>Pair • New</p><button class="btn-dark btn" onclick="payWithPi('Tractor Tyres - π 6.5')">Buy with Pi</button></div>
+
+<div class="card" data-cat="implement" data-name="Baler"><img src="https://via.placeholder.com/400x300?text=Baler"><h3>Round Baler</h3><p class="price">π 48</p><p>Used • Good condition</p><button class="btn-dark btn" onclick="payWithPi('Baler - π 48')">Buy with Pi</button></div>
+
+<div class="card" data-cat="spare" data-name="PTO Shaft"><img src="https://via.placeholder.com/400x300?text=PTO+Shaft"><h3>PTO Shaft + Clutch</h3><p class="price">π 2.2</p><p>Universal</p><button class="btn-dark btn" onclick="payWithPi('PTO Shaft - π 2.2')">Buy with Pi</button></div>
+
+</div>
+</div>
+
+<div class="section">
+<div class="card" style="padding:25px;max-width:600px;margin:auto">
+<h2>Sell Your Equipment</h2>
+<input placeholder="Equipment Name">
+<input placeholder="Price in Pi">
+<select><option>Tractor</option><option>Implement</option><option>Trailer</option><option>Spare</option></select>
+<input placeholder="Your Phone / WhatsApp">
+<button class="btn btn-dark" style="width:100%" onclick="alert('Listing submitted! We will verify & publish.')">Submit Listing</button>
+</div>
+</div>
+
+<footer>
+<p>© 2026 AGRICULTURAL EQUIPMENT MARKET | Bloemfontein, FS | SA Wide Delivery</p>
+<p><a href="legal.html" style="color:#fff">Privacy & Terms</a> | <a href="report.html" style="color:#fff">Support</a></p>
+<p>Email: agriequipmentmarket@gmail.com</p>
+</footer>
+
+<script>
+const Pi = window.Pi; Pi.init({ version: "2.0", sandbox: false }); let user=null;
+function onIncomplete(p){ console.log(p); }
+async function loginWithPi(){
+try{ const a=await Pi.authenticate(['username','payments'], onIncomplete); user=a.user; document.getElementById('status').innerText="Welcome " + user.username + " ✅ Pi Connected"; }
+catch(e){ document.getElementById('status').innerText="Login failed: "+e.message; }
+}
+async function payWithPi(item){
+if(!user){ alert("Login with Pi first"); loginWithPi(); return; }
+try{
+await Pi.createPayment({ amount: 1, memo: "Agri Market - " + item, metadata: { item: item } },{
+onReadyForServerApproval: async (id)=>{ document.getElementById('status').innerText="Approving Pi..."; },
+onReadyForServerCompletion: async (id, tx)=>{ document.getElementById('status').innerText="✅ Order Confirmed: " + item + " TX:" + tx; alert("✅ You bought: " + item + "\nSeller will call you"); },
+onCancel: ()=>{ document.getElementById('status').innerText="Cancelled"; },
+onError: (e)=>{ document.getElementById('status').innerText="Error: "+e.message; }
+});
+}catch(e){ alert(e.message); }
+}
+function filterCat(c){
+document.querySelectorAll('.cat').forEach(b=>b.classList.remove('active')); event.target.classList.add('active');
+document.querySelectorAll('#products .card').forEach(card=>{ card.style.display=(c==='all'||card.dataset.cat===c)?'block':'none'; });
+}
+function filterSearch(){
+let q=document.getElementById('search').value.toLowerCase();
+document.querySelectorAll('#products .card').forEach(card=>{ card.style.display=card.dataset.name.toLowerCase().includes(q)?'block':'none'; });
+}
+</script>
+</body>
+</html>
