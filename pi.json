@@ -1,0 +1,14 @@
+{
+  "app_name": "Agricultural Equipment Market",
+  "display_name": "Agri Equipment Market",
+  "description": "South Africa's marketplace for tractors, irrigation systems, tools and farm equipment. Buy, sell, rent agricultural machinery and pay with Pi. Supporting Gauteng farmers and nationwide.",
+  "category": "Agriculture & Marketplace",
+  "tags": ["agriculture", "farming", "tractors", "equipment", "pi-payment", "south-africa"],
+  "developer": "Ndhlovu36",
+  "version": "1.0.0",
+  "ecosystem_apps": ["Gauteng Shopping Hub", "Revealed Logistics"],
+  "features": ["Pi Payments", "Equipment Listings", "Rent & Buy", "Farmer Delivery"],
+  "services": ["Tractor Sales", "Irrigation Equipment", "Farm Tools", "Equipment Rental"],
+  "region": "South Africa",
+  "hackathon_track": "E-commerce & Real World Utility"
+}
