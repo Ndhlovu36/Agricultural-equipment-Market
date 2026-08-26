@@ -1,0 +1,16 @@
+{
+  "name": "Agricultural Equipment Market",
+  "short_name": "AgriMarket",
+  "description": "Buy, sell, rent farm equipment with Pi in SA",
+  "start_url": "/agricultural-equipment-market/",
+  "display": "standalone",
+  "background_color": "#33691e",
+  "theme_color": "#33691e",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2909/2909655.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
