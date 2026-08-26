@@ -1,0 +1,4 @@
+{
+  "name": "agricultural-equipment-market",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
