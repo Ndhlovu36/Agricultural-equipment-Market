@@ -86,4 +86,89 @@ footer{background:#1b5e20;color:#c8e6c9;text-align:center;padding:25px;margin-to
 <input placeholder="Your Phone / WhatsApp">
 <button class="btn btn-dark" style="width:100%" onclick="alert('Listing submitted! We will v
 }
-async funps LIVE on Pi Mainnet - Pay with Pi | Verified Develope
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Equipment Market - LIVE on Pi Mainnet</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{font-family:Arial;padding:10px;background:#f5f5f5}
+.card{background:white;padding:15px;margin:10px 0;border-radius:10px;box-shadow:0 2px 5px #ccc}
+.btn{padding:10px 15px;border:none;border-radius:5px;cursor:pointer}
+.btn-dark{background:#333;color:white}
+</style>
+</head>
+<body>
+
+<h1>Agri Equipment Market</h1>
+<div id="status" style="padding:10px;background:#fff3cd">Click Login with Pi</div>
+<button class="btn btn-dark" onclick="loginWithPi()">Login with Pi</button>
+
+<div class="section">
+<div id="products">
+<div class="card" data-cat="trai"><h3>Tractor</h3><p>Price: 1 Pi</p><button class="btn btn-dark" onclick="payWithPi('Tractor')">Pay with Pi</button></div>
+<div class="card" data-cat="impl"><h3>Plough</h3><p>Price: 1 Pi</p><button class="btn btn-dark" onclick="payWithPi('Plough')">Pay with Pi</button></div>
+</div>
+</div>
+
+<div class="section">
+<div class="card" style="padding:20px">
+<h2>Sell Your Equipment</h2>
+<input placeholder="Equipment Name" style="width:100%;margin:5px 0;padding:8px">
+<input placeholder="Price in Pi" style="width:100%;margin:5px 0;padding:8px">
+<select style="width:100%;margin:5px 0;padding:8px"><option>Tractor</option><option>Implement</option><option>Spare</option></select>
+<input placeholder="Your Phone / WhatsApp" style="width:100%;margin:5px 0;padding:8px">
+<button class="btn btn-dark" style="width:100%">List Equipment</button>
+</div>
+</div>
+
+<footer>
+<p style="font-size:11px;color:gray;text-align:center">Pi Testnet Payment - Agricultural Market LIVE</p>
+</footer>
+
+<script>
+const Pi = window.Pi;
+Pi.init({ version: "2.0", sandbox: false });
+let user = null;
+
+async function loginWithPi(){
+  try{ 
+    const auth = await Pi.authenticate(['username','payments'], onIncompletePaymentFound);
+    user = auth.user;
+    document.getElementById("status").innerText = "Welcome " + user.username + " ✅ Pi Connected";
+  } catch(e){ 
+    document.getElementById("status").innerText = "Login failed: "+e.message; 
+    alert(e.message);
+  }
+}
+
+function onIncompletePaymentFound(payment){
+  fetch("/api/complete", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({paymentId: payment.identifier, txid: payment.transaction.txid})
+  });
+}
+
+async function payWithPi(item){
+ if(!user){ alert("Login with Pi first"); return; }
+ try{
+  await Pi.createPayment({ amount: 1, memo: "Agri Market "+item, metadata: {item: item} }, {
+   onReadyForServerApproval: async (paymentId) => {
+     await fetch("/api/approve", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({paymentId: paymentId})});
+   },
+   onReadyForServerCompletion: async (paymentId, txid) => {
+     await fetch("/api/complete", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({paymentId, txid})});
+     alert("Payment SUCCESS for "+item+"!");
+   },
+   onCancel: () => { alert("Cancelled"); },
+   onError: (e) => { alert("Error: "+e.message); }
+  });
+ } catch(e){ alert(e.message); }
+}
+</script>
+
+</body>
+</html>
