@@ -95,7 +95,6 @@ async function payWithPi(item){
 if(!user){ alert("Login with Pi first"); loginWithPi(); return; }
 try{
 await Pi.createPayment({ amount: 1, memo: "A).innerText="✅ Order Confirmed: " + item + " TX:" + tx; alert("✅ You bought: " + item + "\nSeller willtus').innerText="Cancelled"; },
-onError: (e)=>{ document.getElementById('status').innerText="Error: "+e.message; }
 });
 
 }
