@@ -94,29 +94,7 @@ catch(e){ document.getElementById('status').innerText="Login failed: "+e.message
 async function payWithPi(item){
 if(!user){ alert("Login with Pi first"); loginWithPi(); return; }
 try{
-await Pi.createPayment({ amount: 1, memo: "A).innerText="✅ Order Confirmed: " + item + " TX:" + tx; alert("✅ You bought: " + item + "\nSeller willtus').innerText="Cancelled"; },
-});
-
-}
-function filterCat(c){
-document.querySelectorAll('.cat').forEach(b=>b.classList.remove('active')); event.target.classList.add('active');
-document.querySelectorAll('#products .card').forEach(card=>{ card.style.display=(c==='all'||card.dataset.cat===c)?'block':'none'; });
-}
-function filterSearch(){
-let q=document.getElementById('search').value.toLowerCase();
-document.querySelectorAll('#products .card').forEach(card=>{ card.style.display=card.dataset.name.toLowerCase().includes(q)?'block':'none'; });
-}
-</script>
-</body><footer style="background:#111;color:#fff;padding:20px;text-align:center;margin-top:50px;font-family:Arial;line-height:1.6;">
-  <p><b>🇿🇦 Ndhlovu36 Ecosystem - Johannesburg, Gauteng</b></p>
-  <p>
-    <a href="https://github.com/ndhlovu36" style="color:#f1c40f;text-decoration:none;">GitHub: ndhlovu36</a> | 
-    <a href="https://ndhlovu36.github.io/gauteng-shopping-hub/" style="color:#f1c40f;text-decoration:none;">6-Apps Hub</a> |
-    <a href="https://wa.me/27607263726?text=Hi%20Ndhlovu36%20Ecosystem%20-%20I%20want%20to%20order%20via%20Pi" style="color:#25D366;text-decoration:none;font-weight:bold;">💬 WhatsApp: 060 726 3726</a>
-  </p>
-  <p style="font-size:12px;color:#aaa;">
-    Marble Floors SA • Agri Equipment Market • Gauteng Shopping Hub • Revelation Bus Company • Revealed Logistics • Resurrected Building Projects
-  </p>
+await Pi.createPayment({ amount: 1, memo: "A).innerText="✅ Order Confirmed: " + item + " TX:" + tx; alert("✅ You bought: " + item + "\nSeller willtus').innerText="C
   <p style="font-size:11px;color:#888;">© 2026 All 6 Apps LIVE on Pi Mainnet - Pay with Pi | Verified Developer</p>
 </footer>
 </html>
