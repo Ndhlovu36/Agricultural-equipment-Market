@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AGRICULTURAL EQUIPMENT - Pay with Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script>Pi.init({version:"2.0", sandbox:false});</script>
+<style>
+body{margin:0;font-family:Arial;background:#f5f5f5}
+.head{background:#1b5e20;color:#fff;padding:15px;text-align:center}
+.wrap{padding:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.truck{background:white;border:2px solid #1b5e20;border-radius:10px;padding:10px;text-align:center}
+.btn{width:100%;background:#aed581;color:#000;border:none;padding:10px;border-radius:8px;font-weight:bold;margin-top:8px}
+input{width:100%;padding:12px;margin:5px 0;box-sizing:border-box}
+.login{width:100%;padding:12px;background:#1b5e20;color:white;border:none;border-radius:8px;margin-bottom:10px}
+.book{border:1px solid green;padding:6px;margin:4px;background:white;border-radius:6px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="head"><h2>🚜 AGRICULTURAL MARKET</h2><p id="user">Not logged in</p></div>
+<div class="wrap">
+<button class="login" onclick="login()">Login with Pi</button>
+<input id="to" placeholder="Farm Location">
+<div class="grid">
+<div class="truck"><h4>Tractor Rental</h4><p>Per Day</p><b>3 Pi</b><button class="btn" onclick="pay(3,'Tractor Rental')">Pay 3 Pi</button></div>
+<div class="truck"><h4>Combine Harvester</h4><p>Per Day</p><b>8 Pi</b><button class="btn" onclick="pay(8,'Combine Harvester')">Pay 8 Pi</button></div>
+<div class="truck"><h4>Plough Set</h4><p>Per Set</p><b>5 Pi</b><button class="btn" onclick="pay(5,'Plough Set')">Pay 5 Pi</button></div>
+<div class="truck"><h4>Full Package</h4><p>Per Week</p><b>15 Pi</b><button class="btn" onclick="pay(15,'Full Equipment Package')">Pay 15 Pi</button></div>
+</div>
+<h3>My Equipment Orders (Locally Saved)</h3>
+<div id="myBookings">No orders yet</div>
+</div>
+<script>
+let currentUser=null;
+const Storage={save:(k,d)=>{try{localStorage.setItem(k,JSON.stringify(d))}catch(e){}},get:(k)=>{try{let v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}};
+function login(){Pi.authenticate(['username','payments'],onIncomplete).then(a=>{currentUser=a.user;document.getElementById('user').innerText='Hello '+a.user.username;Storage.save('pi_user_agri',a.user)}).catch(e=>alert(e))}
+function onIncomplete(p){if(p){fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:p.identifier,txid:p.transaction.txid})})}}
+function renderBookings(){let all=Storage.get('pi_bookings_agri')||[];document.getElementById('myBookings').innerHTML=all.length?all.slice().reverse().map(b=>`<div class="book">${b.truck} to ${b.to} - ${b.amount} Pi - ${b.status}</div>`).join(''):'No orders yet';}
+function pay(amount,name){let to=document.getElementById('to').value;if(!to)return alert('Enter farm location');if(!currentUser)return alert('Login first');let all=Storage.get('pi_bookings_agri')||[];all.push({truck:name,amount,to,date:new Date().toISOString(),status:'pending'});Storage.save('pi_bookings_agri',all);renderBookings();Pi.createPayment({amount,memo:name+' to '+to,metadata:{item:name,to}},{onReadyForServerApproval:id=>{fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:id})})},onReadyForServerCompletion:(id,txid)=>{fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:id,txid})}).then(()=>{let all=Storage.get('pi_bookings_agri')||[];all[all.length-1].status='PAID '+txid.slice(0,8);Storage.save('pi_bookings_agri',all);alert('SUCCESS! Tx:'+txid);renderBookings()})},onCancel:()=>alert('Cancelled'),onError:e=>alert(e.message)})}
+window.addEventListener('load',()=>{let u=Storage.get('pi_user_agri');if(u){currentUser=u;document.getElementById('user').innerText='Hello '+u.username}renderBookings()});
+</script>
+</body>
+</html>
