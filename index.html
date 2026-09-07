@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agricultural Equipment Market</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script>Pi.init({version:"2.0", sandbox:false});</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial;background:#f8faf8;color:#222}
+.header{background:linear-gradient(135deg,#1b5e20,#2e7d32);color:white;padding:20px 12px;text-align:center;position:sticky;top:0;z-index:10}
+.header h1{font-size:22px}
+.header p{opacity:0.9;font-size:13px;margin-top:4px}
+.badge{background:white;color:#1b5e20;display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:bold;margin-top:8px}
+.inputs{display:flex;gap:8px;padding:10px;background:white;border-bottom:1px solid #e0e0e0;position:sticky;top:78px;z-index:9}
+.inputs input{flex:1;padding:11px;border:1px solid #ccc;border-radius:8px;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+.card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1px solid #e8e8e8;display:flex;flex-direction:column}
+.card img{width:100%;height:135px;object-fit:cover}
+.card-body{padding:10px;flex:1;display:flex;flex-direction:column}
+.cat{font-size:10px;color:#2e7d32;font-weight:bold;text-transform:uppercase;letter-spacing:0.8px}
+.name{font-size:14px;font-weight:700;margin:3px 0;line-height:1.2}
+.desc{font-size:11px;color:#666;margin-bottom:6px;flex:1}
+.price-row{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
+.price{font-size:18px;font-weight:800;color:#1b5e20}
+.old{font-size:11px;color:#999;text-decoration:line-through}
+.btn{width:100%;background:#1b5e20;color:white;border:none;padding:10px;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer}
+.btn:active{transform:scale(0.98)}
+.footer{text-align:center;padding:20px;font-size:11px;color:#888}
+.stock{font-size:10px;color:#2e7d32;background:#e8f5e9;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>Agricultural Equipment Market</h1>
+<p>Certified Sales Catalogue • Pay with Pi • SA Nationwide Delivery</p>
+<div class="badge">🌾 12 PRODUCTS IN STOCK • PI PAYMENTS</div>
+</div>
+<div class="inputs">
+<input id="wa" placeholder="WhatsApp: 2782...">
+<input id="loc" placeholder="Location: e.g. JHB">
+</div>
+<div class="grid" id="grid"></div>
+<div class="footer">Agricultural Equipment Market • Powered by Pi Network • Johannesburg, SA<br>All sales include delivery quote via WhatsApp</div>
+<script>
+const products=[
+{name:"Compact Tractor 25HP 4WD",price:150,oldPrice:180,cat:"TRACTORS",desc:"Diesel, 4WD, 3-point hitch. Perfect for 1-10ha farms.",img:"https://images.unsplash.com/photo-1592985684811-6c0f98adb014?w=400",stock:"In Stock"},
+{name:"Disc Plough 3-Disc Heavy",price:45,oldPrice:55,cat:"TILLAGE",desc:"Heavy duty 3-disc, compatible 20-50HP tractors.",img:"https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400",stock:"In Stock"},
+{name:"Maize Planter 2-Row",price:30,oldPrice:38,cat:"PLANTING",desc:"Precision seed metering for maize & beans.",img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400",stock:"3 Left"},
+{name:"Solar Irrigation Pump 5HP",price:25,oldPrice:32,cat:"IRRIGATION",desc:"Solar powered, 20m head, free energy.",img:"https://images.unsplash.com/photo-1589923188651-268a9765e432?w=400",stock:"In Stock"},
+{name:"Boom Sprayer 200L",price:35,oldPrice:42,cat:"SPRAYING",desc:"Tractor mounted 8m boom, pest control.",img:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400",stock:"In Stock"},
+{name:"Mini Combine Harvester",price:120,oldPrice:150,cat:"HARVESTING",desc:"Maize & wheat mini combine, 1ha/hr.",img:"https://images.unsplash.com/photo-1500930540495-e92875696a16?w=400",stock:"Order"},
+{name:"Tipping Trailer 2-Ton",price:40,oldPrice:48,cat:"TRAILERS",desc:"2-ton hydraulic tipping, farm transport.",img:"https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=400",stock:"In Stock"},
+{name:"Milking Machine 2-Cow",price:50,oldPrice:65,cat:"DAIRY",desc:"Electric vacuum, stainless steel buckets.",img:"https://images.unsplash.com/photo-1529716249880-6a7fa1266aad?w=400",stock:"In Stock"},
+{name:"Greenhouse Tunnel 6x3m",price:60,oldPrice:75,cat:"GREENHOUSE",desc:"Full kit + drip irrigation + shade net.",img:"https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400",stock:"In Stock"},
+{name:"Offset Disc Harrow",price:38,oldPrice:45,cat:"TILLAGE",desc:"16-disc harrow, soil preparation expert.",img:"https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400",stock:"In Stock"},
+{name:"Chaff Cutter & Grinder",price:22,oldPrice:28,cat:"FEED",desc:"Electric chaff cutter for animal feed.",img:"https://images.unsplash.com/photo-1591088398332-8a7791972843?w=400",stock:"In Stock"},
+{name:"Auto Egg Incubator 528",price:28,oldPrice:35,cat:"POULTRY",desc:"528 eggs, auto turn, digital temp control.",img:"https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400",stock:"In Stock"}
+];
+const grid=document.getElementById('grid');
+grid.innerHTML=products.map(p=>`
+<div class="card">
+<img src="${p.img}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=Farm+Equip'">
+<div class="card-body">
+<span class="cat">${p.cat}</span>
+<div class="name">${p.name}</div>
+<div class="desc">${p.desc}</div>
+<span class="stock">● ${p.stock}</span>
+<div class="price-row"><div><span class="price">${p.price} Pi</span> <span class="old">${p.oldPrice} Pi</span></div></div>
+<button class="btn" onclick="buyProduct('${p.name}',${p.price})">SALES • Buy ${p.price} Pi</button>
+</div></div>`).join('');
+function buyProduct(name,price){
+ const wa=document.getElementById('wa').value.trim();
+ const loc=document.getElementById('loc').value.trim()||'Johannesburg';
+ if(!wa||wa.length<9){alert('⚠️ Enter WhatsApp number first e.g. 27821234567');document.getElementById('wa').focus();return;}
+ if(typeof Pi==='undefined'){alert('Open this site in Pi Browser to pay with Pi');return;}
+ Pi.authenticate(['username','payments'],function(auth){
+   Pi.createPayment({amount:price,memo:'Agri Market: '+name,metadata:{product:name,whatsapp:wa,location:loc,market:'agricultural-equipment-market'}},{
+     onReadyForServerApproval:function(paymentId){return fetch('/api/approve-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:paymentId})}).then(r=>r.json());},
+     onReadyForServerCompletion:function(paymentId,txid){return fetch('/api/complete-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:paymentId,txid:txid,product:name,whatsapp:wa,location:loc})}).then(()=>{alert('✅ SUCCESS!\n\n'+name+' ordered for '+price+' Pi\nDelivery: '+loc+'\nWhatsApp: '+wa+'\n\nWe will contact you in 30 mins.');});},
+     onCancel:function(){alert('Payment cancelled');},
+     onError:function(err){alert('Pi Error: '+err);}
+   });
+ },function(err){alert('Pi Auth failed: '+err);});
+}
+</script>
+</body>
+</html>
