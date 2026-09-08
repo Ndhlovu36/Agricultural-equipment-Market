@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agricultural Equipment Market - Pay with Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script> Pi.init({ version: "2.0", sandbox: false }); </script>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f5f5f5}
+.header{background:#2e7d32;color:white;padding:20px;text-align:center}
+.badge{background:white;color:#2e7d32;padding:6px 14px;border-radius:20px;font-weight:bold;font-size:13px}
+.topbar{display:flex;gap:10px;padding:10px;background:white}
+.topbar input{flex:1;padding:10px;border:1px solid #ccc;border-radius:8px}
+.pi-bar{background:#fff;text-align:center;padding:12px;border-bottom:2px solid #6a1b9a}
+#pi-login{background:#6a1b9a;color:white;border:none;padding:10px 22px;border-radius:8px;font-weight:bold;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+.card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+.card img{width:100%;height:140px;object-fit:cover}
+.card-body{padding:10px}
+.cat{color:#2e7d32;font-weight:bold;font-size:12px;letter-spacing:1px}
+.title{font-weight:bold;margin:4px 0;font-size:15px}
+.desc{font-size:12px;color:#666;margin-bottom:8px}
+.stock{background:#e8f5e9;color:#2e7d32;padding:4px 8px;border-radius:6px;font-size:11px;display:inline-block}
+.price{font-size:18px;font-weight:bold;color:#2e7d32;margin:8px 0}
+.price s{font-size:12px;color:#999;margin-left:6px}
+.buy{width:100%;background:#2e7d32;color:white;border:none;padding:10px;border-radius:8px;font-weight:bold;cursor:pointer}
+.buy:disabled{background:#aaa}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1 style="margin:0">Agricultural Equipment Market</h1>
+<p style="margin:6px 0;font-size:14px">Certified Sales Catalogue • Pay with Pi • SA Nationwide Delivery</p>
+<span class="badge">🌾 12 PRODUCTS IN STOCK • PI PAYMENTS</span>
+</div>
+
+<div class="pi-bar">
+<button id="pi-login">🔐 Login with Pi</button>
+<span id="pi-user" style="margin-left:10px;font-weight:bold"></span>
+<p id="pi-status" style="font-size:11px;color:#666;margin:6px 0">Login required before buying</p>
+</div>
+
+<div class="topbar">
+<input id="phone" value="0607263726" placeholder="Your Phone">
+<input id="location" value="Meyerton" placeholder="Town">
+</div>
+
+<div class="grid" id="products">
+<!-- Product 1 -->
+<div class="card">
+<img src="https://images.unsplash.com/photo-1540962351504-03099e0a754b?q=80&w=500" alt="Tractor">
+<div class="card-body">
+<div class="cat">TRACTORS</div>
+<div class="title">Compact Tractor 25HP 4WD</div>
+<div class="desc">Diesel, 4WD, 3-point hitch. Perfect for 1-10ha farms.</div>
+<span class="stock">● In Stock</span>
+<div class="price">150 Pi <s>180 Pi</s></div>
+<button class="buy" onclick="buyPi(150,'Compact Tractor 25HP 4WD')">SALES • Buy 150 Pi</button>
+</div>
+</div>
+
+<!-- Product 2 -->
+<div class="card">
+<img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=500" alt="Disc Plough">
+<div class="card-body">
+<div class="cat">TILLAGE</div>
+<div class="title">Disc Plough 3-Disc Heavy</div>
+<div class="desc">Heavy duty 3-disc, compatible 20-50HP tractors.</div>
+<span class="stock">● In Stock</span>
+<div class="price">45 Pi <s>55 Pi</s></div>
+<button class="buy" onclick="buyPi(45,'Disc Plough 3-Disc')">SALES • Buy 45 Pi</button>
+</div>
+</div>
+</div>
+
+<script>
+let piUser = null;
+let piAccessToken = null;
+
+async function piLogin(){
+  try{
+    const scopes = ['username','payments'];
+    const auth = await Pi.authenticate(scopes, onIncompletePayment
