@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agricultural Equipment Market | Pay with Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.header{background:#2e7d32;color:#fff;padding:22px;text-align:center}
+.header h1{margin:0;font-size:28px}
+.header p{margin:8px 0 0;opacity:.9}
+.badge{display:inline-block;margin-top:12px;background:#fff;color:#2e7d32;padding:8px 16px;border-radius:30px;font-weight:bold;font-size:13px}
+.pi-bar{background:#fff;padding:14px;text-align:center;border-bottom:3px solid #6a1b9a;position:sticky;top:0;z-index:10}
+#pi-login{background:#6a1b9a;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer}
+#pi-user{font-weight:bold;margin-left:10px;color:#2e7d32}
+#pi-status{font-size:12px;color:#666;margin-top:6px}
+.topbar{display:flex;gap:8px;padding:10px;background:#fff}
+.topbar input{flex:1;padding:11px;border:1px solid #ccc;border-radius:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.card img{width:100%;height:135px;object-fit:cover}
+.card-body{padding:10px}
+.cat{color:#2e7d32;font-weight:bold;font-size:11px}
+.title{font-weight:bold;font-size:14px;margin:3px 0}
+.desc{font-size:11px;color:#777;line-height:1.3;height:28px;overflow:hidden}
+.stock{background:#e8f5e9;color:#2e7d32;padding:3px 7px;border-radius:6px;font-size:10px;display:inline-block;margin:4px 0}
+.price{font-weight:bold;color:#2e7d32;font-size:17px;margin:6px 0}
+.price s{color:#999;font-size:11px}
+.buy{width:100%;background:#2e7d32;color:#fff;border:none;padding:10px;border-radius:9px;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>Agricultural Equipment Market</h1>
+<p>Certified Sales Catalogue • Pay with Pi • SA Nationwide Delivery</p>
+<div class="badge">🌾 12 PRODUCTS IN STOCK • PI PAYMENTS</div>
+</div>
+
+<div class="pi-bar">
+<button id="pi-login-btn">🔐 Login with Pi</button>
+<span id="pi-user"></span>
+<div id="pi-status">Open in Pi Browser to login & buy - Step 10 Ready</div>
+</div>
+
+<div class="topbar">
+<input id="phone" value="0607263726">
+<input id="location" value="Meyerton">
+</div>
+
+<div class="grid">
+<div class="card"><img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=500"><div class="card-body"><div class="cat">TRACTORS</div><div class="title">Compact Tractor 25HP 4WD</div><div class="desc">Diesel 4WD, perfect for 1-10ha farms</div><span class="stock">● In Stock</span><div class="price">150 Pi <s>180 Pi</s></div><button class="buy" onclick="buyPi(150,'Tractor 25HP')">SALES • Buy 150 Pi</button></div></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=500"><div class="card-body"><div class="cat">TILLAGE</div><div class="title">Disc Plough 3-Disc Heavy</div><div class="desc">Heavy duty for 20-50HP tractors</div><span class="stock">● In Stock</span><div class="price">45 Pi <s>55 Pi</s></div><button class="buy" onclick="buyPi(45,'Disc Plough')">SALES • Buy 45 Pi</button></div></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=500"><div class="card-body"><div class="cat">SEEDING</div><div class="title">Maize Planter 2-Row</div><div class="desc">Precision planting, fertilizer box</div><span class="stock">● In Stock</span><div class="price">35 Pi</div><button class="buy" onclick="buyPi(35,'Maize Planter')">SALES • Buy 35 Pi</button></div></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=500"><div class="card-body"><div class="cat">HARVEST</div><div class="title">Boom Sprayer 200L</div><div class="desc">12m boom, PTO pump included</div><span class="stock">● In Stock</span><div class="price">28 Pi</div><button class="buy" onclick="buyPi(28,'Boom Sprayer')">SALES • Buy 28 Pi</button></div></div>
+</div>
+
+<script>
+// STEP 10 CONFIG
