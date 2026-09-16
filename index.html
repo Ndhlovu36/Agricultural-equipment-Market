@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Agri Pi Market | 35 Machines | Pi Only</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial;background:#f0f6ff;color:#0a1931}
+.header{background:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.logo{font-weight:900;color:#0052cc;font-size:18px}.logo span{color:#ffcc00}
+.hero{background:linear-gradient(135deg,#0a1931,#0052cc);color:#fff;text-align:center;padding:35px 14px}
+.hero h1 span{color:#ffcc00}
+.btn{padding:8px 14px;border-radius:20px;border:none;font-weight:800;cursor:pointer;font-size:12px}
+.btn-blue{background:#0052cc;color:#fff}.btn-yellow{background:#ffcc00;color:#0a1931}
+.btn-pi{background:#6a1bbf;color:#fff;width:100%;padding:10px;border-radius:10px;margin-top:8px}
+.section{max-width:1250px;margin:auto;padding:18px 12px}
+.filter{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;justify-content:center}
+.filter button{padding:6px 12px;border-radius:20px;border:1px solid #0052cc;background:#fff;font-size:11px;font-weight:800;cursor:pointer}
+.filter button.active{background:#0052cc;color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.1);position:relative}
+.card img{width:100%;height:160px;object-fit:cover;background:#ddd}
+.badge{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:20px;font-size:9px;font-weight:900;color:#fff}
+.badge-plough{background:#0052cc}.badge-harvest{background:#ff8c00}.badge-spray{background:#00b050}.badge-fert{background:#ff4444}.badge-plant{background:#6a1bbf}
+.card-body{padding:10px}.card-body h3{font-size:12px}.card-body p{font-size:10px;color:#666;margin:2px 0}
+.price{color:#6a1bbf;font-weight:900;font-size:13px;margin:4px 0}
+.cart{position:fixed;bottom:16px;right:16px;background:#0a1931;color:#fff;padding:12px 16px;border-radius:30px;font-size:12px;z-index:101;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="logo">AGRI <span>Pi MARKET</span> • 35 MACHINES</div>
+<div><span style="background:#6a1bbf;color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:900">MAINNET Pi</span>
+<button class="btn btn-blue" onclick="piLogin()">π Login</button></div>
+</div>
+
+<div class="hero">
+<h1><span>35 HUGE MACHINERY</span><br>ALL PRICES IN Pi ONLY</h1>
+<p style="margin:10px 0;font-size:13px">10 Ploughing • 10 Harvesting • 5 Sprayer • 5 Fertilizer • 5 Planter • Branded John Deere, Case IH, Claas, Kubota, Massey, New Holland</p>
+<div class="filter">
+<button class="active" onclick="filterCat('all')">ALL 35</button>
+<button onclick="filterCat('plough')">PLOUGHING (10)</button>
+<button onclick="filterCat('harvest')">HARVESTING (10)</button>
+<button onclick="filterCat('spray')">SPRAYER (5)</button>
+<button onclick="filterCat('fert')">FERTILIZER (5)</button>
+<button onclick="filterCat('plant')">PLANTER (5)</button>
+</div>
+</div>
+
+<div class="section">
+<div id="grid" class="grid"></div>
+</div>
+
+<div class="cart" id="cartBtn" onclick="payPiCart()">🛒 Cart: <span id="cartCount">0</span> • <span id="cartPi">0</span> π • Pay with Pi</div>
+
+<script>
+Pi.init({version:"2.0", sandbox:false}); // MAINNET Pi
+let cart=[], piUser=null;
+const machines=[
+ // 10 PLOUGHING
+ {id:1,cat:'plough',brand:'John Deere',name:'John Deere 8R 410 + 2140 Disc Plow',img:'john_deere_tractor_plough.webp',pi:28.5,desc:'10 Discs Heavy Duty'},
+ {id:2,cat:'plough',brand:'Case IH',name:'Case IH Steiger 620 + Ecolo-Tiger Plough',img:'john_deere_tractor_plough.webp',pi:32.0,desc:'Case IH Red Power'},
+ {id:3,cat:'plough',brand:'Massey Ferguson',name:'Massey Ferguson 8737 + MF Disc Plough',img:'john_deere_tractor_plough.webp',pi:24.5,desc:'Massey Power'},
+ {id:4,cat:'plough',brand:'Kubota',name:'Kubota M8 + Kubota Disc Plough',img:'john_deere_tractor_plough.webp',pi:22.0,desc:'Orange Beast'},
+ {id:5,cat:'plough',brand:'New Holland',name:'New Holland T9 + Disc Plough',img:'john_deere_tractor_plough.webp',pi:27.0,desc:'Blue Giant'},
+ {id:6,cat:'plough',brand:'Fendt',name:'Fendt 1050 Vario + Lemken Plough',img:'john_deere_tractor_plough.webp',pi:35.0,desc:'German Engineering'},
+ {id:7,cat:'plough',brand:'John Deere',name:'John Deere 9R 640 Chisel Plow',img:'john_deere_tractor_plough.webp',pi:38.5,desc:'Huge Chisel'},
+ {id:8,cat:'plough',brand:'Challenger',name:'Challenger MT875E Plough System',img:'john_deere_tractor_plough.webp',pi:36.0,desc:'Track Tractor'},
+ {id:9,cat:'plough',brand:'Deutz-Fahr',name:'Deutz-Fahr 9340 + Kverneland Plough',img:'john_deere_tractor_plough.webp',pi:26.5,desc:'Green Power'},
+ {id:10,cat:'plough',brand:'Valtra',name:'Valtra S394 + Agco Plough',img:'john_deere_tractor_plough.webp',pi:25.0,desc:'Nordic Power'},
+ // 10 HARVESTING
+ {id:11,cat:'harvest',brand:'John Deere',name:'John Deere S780 Combine',img:'john_deere_harvest.webp',pi:85.0,desc:'Flagship Harvester'},
+ {id:12,cat:'harvest',brand:'Claas',name:'Claas Lexion 8900 Combine',img:'john_deere_harvest.webp',pi:92.0,desc:'Lexion Beast'},
+ {id:13,cat:'harvest',brand:'Case IH',name:'Case IH 8250 Axial-Flow Combine',img:'john_deere_harvest.webp',pi:88.0,desc:'Axial Flow'},
+ {id:14,cat:'harvest',brand:'New Holland',name:'New Holland CR10.90 Combine',img:'john_deere_harvest.webp',pi:87.5,desc:'Twin Rotor'},
+ {id:15,cat:'harvest',brand:'Massey Ferguson',name:'Massey Ferguson IDEAL 9T Combine',img:'john_deere_harvest.webp',pi:83.0,desc:'IDEAL Series'},
+ {id:16,cat:'harvest',brand:'Fendt',name:'Fendt IDEAL 10T Combine',img:'john_deere_harvest.webp',pi:95.0,desc:'Premium'},
+ {id:17,cat:'harvest',brand:'John Deere',name:'John Deere X9 1100 Combine',img:'john_deere_harvest.webp',pi:98.0,desc:'X9 Biggest'},
+ {id:18,cat:'harvest',brand:'Kubota',name:'Kubota DC-105X Harvester',img:'john_deere_harvest.webp',pi:45.0,desc:'Compact Harvester'},
+ {id:19,cat:'harvest',brand:'Deutz-Fahr',name:'Deutz-Fahr C9306 TS Combine',img:'john_deere_harvest.webp',pi:78.0,desc:'C9000 Series'},
+ {id:20,cat:'harvest',brand:'Sampo Rosenlew',name:'Sampo HRX Forage Harvester',img:'john_deere_harvest.webp',pi:65.0,desc:'Forage'},
+ // 5 SPRAYER
+ {id:21,cat:'spray',brand:'John Deere',name:'John Deere 412R Sprayer 120ft Boom',img:'john_deere_sprayer_field.webp',pi:42.0,desc:'120ft Boom'},
+ {id:22,cat:'spray',brand:'Case IH',name:'Case IH Patriot 4450 Sprayer',img:'john_deere_sprayer_field.webp',pi:44.5,desc:'Patriot Series'},
+ {id:23,cat:'spray',brand:'Kubota',name:'Kubota XTA 4000 Self Propelled Sprayer',img:'john_deere_sprayer_field.webp',pi:38.0,desc:'Precision Spray'},
+ {id:24,cat:'spray',brand:'New Holland',name:'New Holland Guardian SP410F',img:'john_deere_sprayer_field.webp',pi:40.0,desc:'Guardian Front Boom'},
+ {id:25,cat:'spray',brand:'Hagie',name:'Hagie STS20 Sprayer 132ft',img:'john_deere_sprayer_field.webp',pi:48.0,desc:'132ft Mega Boom'},
+ // 5 FERTILIZER
+ {id:26,cat:'fert',brand:'Kubota',name:'Kubota DSM-W Pro 6000 Fertilizer Spreader',img:'kubota_fertilizer_spreader.webp',pi:18.5,desc:'6000L GeoSpread'},
+ {id:27,cat:'fert',brand:'Amazone',name:'Amazone ZG-TS 10001 Fertilizer Spreader',img:'kubota_fertilizer_spreader.webp',pi:22.0,desc:'10001L Trailed'},
+ {id:28,cat:'fert',brand:'Kverneland',name:'Kverneland Exacta CL 1100',img:'kubota_fertilizer_spreader.webp',pi:15.0,desc:'Exacta CL'},
+ {id:29,cat:'fert',brand:'John Deere',name:'John Deere F4365 Fertilizer Spreader',img:'kubota_fertilizer_spreader.webp',pi:26.0,desc:'Dry Box'},
+ {id:30,cat:'fert',brand:'Bogballe',name:'Bogballe M35W Fertilizer Spreader',img:'kubota_fertilizer_spreader.webp',pi:14.5,desc:'M-Line'},
+ // 5 PLANTER
+ {id:31,cat:'plant',brand:'Kinze',name:'Kinze 4905 24-Row Planter',img:'kinze_planter_golden_field.webp',pi:32.5,desc:'24 Row Blue'},
+ {id:32,cat:'plant',brand:'John Deere',name:'John Deere DB90 36-Row Planter',img:'kinze_planter_golden_field.webp',pi:45.0,desc:'36 Row Biggest'},
+ {id:33,cat:'plant',brand:'Case IH',name:'Case IH 2150 Early Riser 24-Row',img:'kinze_planter_golden_field.webp',pi:38.0,desc:'Early Riser'},
+ {id:34,cat:'plant',brand:'Horsch',name:'Horsch Maestro 24.70 Planter',img:'kinze_planter_golden_field.webp',pi:36.5,desc:'High Speed'},
+ {id:35,cat:'plant',brand:'Great Plains',name:'Great Plains YP-2425A Planter',img:'kinze_planter_golden_field.webp',pi:28.0,desc:'Yield-Pro'}
+];
+
+function render(filter='all'){
+ const g=document.getElementById('grid'); g.innerHTML='';
+ machines.filter(m=>filter==='all'||m.cat===filter).forEach(m=>{
+  const badgeClass='badge-'+m.cat;
+  const badgeText=m.cat==='plough'?'PLOUGH':m.cat==='harvest'?'HARVEST':m.cat==='spray'?'SPRAYER':m.cat==='fert'?'FERTILIZER':'PLANTER';
+  g.innerHTML+=`<div class="card"><span class="badge ${badgeClass}">${badgeText}</span><img src="${m.img}" alt="${m.name}"><div class="card-body"><h3>${m.brand}</h3><p style="font-weight:800">${m.name}</p><p>${m.desc}</p><div class="price">π ${m.pi} Pi</div><button class="btn-pi" onclick="addCart(${m.id})">Add to Cart - π ${m.pi}</button></div></div>`;
+ });
+}
+function filterCat(c){document.querySelectorAll('.filter button').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); render(c);}
+function addCart(id){const m=machines.find(x=>x.id===id); cart.push(m); document.getElementById('cartCount').innerText=cart.length; const total=cart.reduce((s,x)=>s+x.pi,0); document.getElementById('cartPi').innerText=total.toFixed(1);}
+
+async function piLogin(){try{const auth=await Pi.authenticate(['username','payments'],()=>{}); piUser=auth.user; alert('Pi Connected @'+auth.user.username);}catch(e){alert('Open in Pi Browser for Mainnet Pi payments');}}
+function payPiCart(){
+ if(cart.length===0)return alert('Cart empty');
+ const total=cart.reduce((s,x)=>s+x.pi,0);
+ if(!piUser){piLogin(); return}
+ Pi.createPayment({amount: total, memo:`Agri Pi Market - ${cart.length} Machines - ${cart.map(c=>c.brand).join(', ')}`, metadata:{items:cart.map(c=>c.id)}},{onReadyForServerApproval:id=>console.log('Approve',id),onReadyForServerCompletion:(id,txid)=>{alert('Pi Mainnet Paid! TX:'+txid+' - '+cart.length+' machines ordered!'); cart=[]; document.getElementById('cartCount').innerText=0; document.getElementById('cartPi').innerText=0;},onCancel:()=>alert('Cancelled'),onError:e=>alert('Pi Error:'+e)});
+}
+render();
+</script>
+</body>
+</html>
