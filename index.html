@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Market Pi - 14 Heavy</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f1f5eb;padding-bottom:160px}
+.header{background:#2e7d32;color:#fff;padding:12px;text-align:center;position:sticky;top:0;z-index:999}
+.actions{display:flex;gap:8px;justify-content:center;margin:8px 0}
+.btn-top{padding:9px 14px;border-radius:10px;border:none;font-weight:bold}
+.login{background:#ff9800;color:#fff}.wa{background:#25D366;color:#fff}
+.grid{padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,.12)}
+.card img{width:100%;height:125px;object-fit:cover}
+.body{padding:8px}
+.price{color:#2e7d32;font-weight:bold;font-size:13px}
+.btn{width:100%;padding:9px;background:#2e7d32;color:#fff;border:none;border-radius:8px;margin-top:4px;font-weight:bold;font-size:12px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;justify-content:center;align-items:center;padding:12px}
+.box{background:#fff;width:100%;max-width:360px;border-radius:14px;padding:16px}
+.box input,.box textarea{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc}
+</style>
+</head>
+<body>
+<div class="header">
+<h2 style="margin:0;font-size:17px">🚜 Agri Market - 14 Heavy Equipment</h2>
+<div id="user" style="font-size:12px">❌ Not logged in - Pi Browser</div>
+<div class="actions">
+<button class="btn-top login" onclick="piLogin()">🔐 Login with Pi</button>
+<a href="https://wa.me/27700000000" target="_blank"><button class="btn-top wa">WhatsApp</button></a>
+</div>
+</div>
+<div class="grid" id="grid"></div>
+<div class="modal" id="modal"><div class="box">
+<img id="m-img" src="" style="width:100%;height:140px;object-fit:cover;border-radius:10px">
+<h3 id="m-name" style="font-size:15px"></h3><div id="m-price" class="price"></div>
+<input id="d-name" placeholder="Full Name *"><input id="d-phone" placeholder="Phone *">
+<textarea id="d-address" rows="2" placeholder="Delivery Address *"></textarea>
+<button class="btn" onclick="confirmPay()">✅ Pay 0.01 Test Pi</button>
+<button class="btn" style="background:#999" onclick="closeModal()">Cancel</button>
+</div></div>
+<script>
+let piUser=null,currentProduct=null;
+Pi.init({version:"2.0",sandbox:true});
+function piLogin(){if(typeof Pi==="undefined"){alert("Open in Pi Browser!");return;}Pi.authenticate(['username','payments'],()=>{}).then(a=>{piUser=a.user;document.getElementById('user').innerText="✅ "+a.user.username;}).catch(e=>alert(e.message));}
+
+const products=[
+// 9 OLD
+{name:"KUBOTA PRO 6000",real:1250,price:0.01,image:"IMG-20260916-WA0169.jpg"},
+{name:"JD X9 Combine",real:8900,price:0.01,image:"IMG-20260916-WA3079.jpg"},
+{name:"JD 4120R Sprayer",real:4200,price:0.01,image:"IMG-20260916-WA2077.jpg"},
+{name:"CLAAS LEXION 8700",real:185,price:0.01,image:"IMG-20260920-WA7092.jpg"},
+{name:"CASE 4540 Floater",real:145,price:0.01,image:"IMG-20260920-WA5226.jpg"},
+{name:"JD 8R 410 + Disc",real:125,price:0.01,image:"IMG-20260920-WA3637.jpg"},
+{name:"JD 8R Tillage",real:115,price:0.01,image:"IMG-20260917-WA4818.jpg"},
+{name:"JD DB120 Planter",real:135,price:0.01,image:"IMG-20260920-WA4385.jpg"},
+{name:"Kubota XTA Sprayer",real:68,price:0.01,image:"IMG-20260920-WA1709.jpg"},
+// 5 NEW HEAVY - YOUR NEW UPLOADS
+{name:"JD 9RX 640 640HP Track Tractor",real:15500,price:0.02,image:"IMG-20260921-WA4395.jpg"},
+{name:"New Holland CR11 775HP Combine",real:18500,price:0.02,image:"IMG-20260921-WA0033.jpg"},
+{name:"Fendt 1050 Vario 517HP",real:14200,price:0.02,image:"IMG-20260921-WA1772.jpg"},
+{name:"CAT Challenger MT875 Tillage",real:13800,price:0.02,image:"IMG-20260921-WA0256.jpg"},
+{name:"Case IH Quadtrac 715 715HP",real:16800,price:0.02,image:"IMG-20260921-WA2164.jpg"}
+];
+
+const grid=document.getElementById('grid');
+products.forEach(p=>{
+ grid.innerHTML+=`<div class="card"><img src="./${p.image}"><div class="body"><b style="font-size:10px">${p.name}</b><div class="price">π ${p.real}</div><button class="btn" onclick="openModal('${p.name}',${p.price},'${p.image}',${p.real})">Buy with Pi</button></div></div>`;
+});
+function openModal(n,p,i,r){if(!piUser){piLogin();return;}currentProduct={name:n,price:p,real:r,img:i};document.getElementById('m-name').innerText=n+" - π "+r;document.getElementById('m-price').innerText="Test Pay: π "+p;document.getElementById('m-img').src="./"+i;document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function confirmPay(){
+ const name=document.getElementById('d-name').value,phone=document.getElementById('d-phone').value,addr=document.getElementById('d-address').value;
+ if(!name||!phone||!addr){alert("Fill all");return;}
+ closeModal();
+ Pi.createPayment({amount:parseFloat(currentProduct.price),memo:currentProduct.name,metadata:{addr:addr,realPrice:currentProduct.real}},{
+   onReadyForServerApproval:()=>{},
+   onReadyForServerCompletion:(id,txid)=>{alert("✅ SUCCESS! Real Pi "+currentProduct.real+"\nTx: "+txid+"\nDelivery: "+addr); window.open("https://wa.me/27700000000?text=ORDER "+encodeURIComponent(currentProduct.name)+" Real Pi "+currentProduct.real+"%0AName "+encodeURIComponent(name)+"%0APhone "+encodeURIComponent(phone)+"%0AAddr "+encodeURIComponent(addr),"_blank");},
+   onCancel:()=>alert("Cancelled"),onError:(e)=>alert("Error: "+JSON.stringify(e))
+ });
+}
+</script>
+</body>
+</html>
