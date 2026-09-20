@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Market Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#eef2e8}
+.header{background:#2e7d32;color:#fff;padding:14px;text-align:center;position:sticky;top:0;z-index:99}
+.switch{display:flex;justify-content:center;gap:8px;margin:8px}
+.switch button{padding:8px 16px;border-radius:20px;border:2px solid #fff;background:transparent;color:#fff;font-weight:bold}
+.switch button.active{background:#fff;color:#2e7d32}
+.actions{display:flex;gap:8px;justify-content:center;margin:8px;flex-wrap:wrap}
+.actions button{padding:10px 16px;border-radius:8px;border:none;font-weight:bold}
+.login{background:#ff9800;color:#fff} .wa{background:#25D366;color:#fff} .test{background:#fff;color:#2e7d32}
+.grid{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.card img{width:100%;height:150px;object-fit:cover}
+.body{padding:10px} .price{color:#2e7d32;font-weight:bold}
+.btn{width:100%;padding:10px;background:#2e7d32;color:#fff;border:none;border-radius:8px;margin-top:6px;font-weight:bold}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:999;justify-content:center;align-items:center}
+.box{background:#fff;width:90%;max-width:400px;border-radius:16px;padding:20px}
+.box input,.box textarea{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;box-sizing:border-box}
+#log{font-size:11px;background:#000;color:#0f0;padding:8px;margin:8px;border-radius:8px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="header">
+<h2 style="margin:0">🚜 Agri Market - Pi</h2>
+<div id="user">❌ Not logged in - Open in Pi Browser</div>
+<div class="switch">
+<button id="btn-test" class="active" onclick="setMode('testnet')">Testnet</button>
+<button id="btn-main" onclick="setMode('mainnet')">Mainnet</button>
+</div>
+<div class="actions">
+<button class="login" onclick="piLogin()">🔐 Login with Pi</button>
+<button class="test" onclick="testPi()">Test SDK</button>
+<a href="https://wa.me/27700000000?text=Hello Agri Market" target="_blank"><button class="wa">WhatsApp</button></a>
+</div>
+<div id="log">Logs: waiting...</div>
+</div>
+<div class="grid" id="grid"></div>
+<div class="modal" id="modal"><div class="box">
+<h3 id="m-name"></h3><p id="m-price" class="price"></p>
+<input id="d-name" placeholder="Full Name"><input id="d-phone" placeholder="Phone"><textarea id="d-address" placeholder="Delivery Address"></textarea>
+<button class="btn" onclick="confirmPay()">Pay with Pi</button><button class="btn" style="background:#999" onclick="closeModal()">Cancel</button>
+</div></div>
+<script>
+let piUser=null, currentMode='testnet', currentProduct=null, isSandbox=true;
+function log(t){ document.getElementById('log').innerText+= "\n"+t; }
+
+function initPi(){
+ isSandbox = (currentMode==='testnet');
+ try{ Pi.init({version:"2.0", sandbox:isSandbox}); log("Pi.init OK - sandbox="+isSandbox+" - Pi object: "+(typeof Pi!=="undefined")); }
+ catch(e){ log("Pi.init FAIL: "+e.message); }
+}
+initPi();
+
+function setMode(m){
+ currentMode=m;
+ document.getElementById('btn-test').classList.toggle('active',m==='testnet');
+ document.getElementById('btn-main').classList.toggle('active',m==='mainnet');
+ initPi(); log("Switched to "+m);
+}
+
+function testPi(){
+ log("Testing... typeof Pi = "+typeof Pi);
+ if(typeof Pi==="undefined"){ alert("Pi SDK not loaded - Are you in Pi Browser? Open https://"+location.host+" in Pi Browser, NOT Chrome!"); return; }
+ alert("Pi SDK Found! Version: "+Pi.version+" Now try Login");
+}
+
+function piLogin(){
+ if(typeof Pi==="undefined"){ alert("❌ Open this link IN Pi Browser App, not Chrome!\n\nYour link: https://agricultural-equipment-market.vercel.app"); return; }
+ log("Calling Pi.authenticate...");
+ // CORRECT SDK v2 syntax
+ const scopes = ['username','payments'];
+ function onIncompletePayment(payment){ log("Incomplete payment found: "+payment.identifier); }
+ 
+ Pi.authenticate(scopes, onIncompletePayment).then(function(auth){
+   piUser = auth.user;
+   log("AUTH SUCCESS: "+JSON.stringify(auth));
+   document.getElementById('user').innerText="✅ "+auth.user.username+" logged in ("+currentMode+")";
+   alert("✅ Logged in as "+auth.user.username);
+ }).catch(function(err){
+   log("AUTH ERROR: "+JSON.stringify(err));
+   alert("Login error: "+err.message+"\n\nMake sure: 1) You are in Pi Browser 2) You are in Testnet mode for testing");
+ });
+}
+
+const products=[
+{name:"KUBOTA DSM-W PRO 6000",price:1250,image:"./IMG-20260916-WA0169.jpg"},
+{name:"JD Combine X9",price:8900,image:"./IMG-20260916-WA3079.jpg"},
+{name:"JD Sprayer 120ft",price:4200,image:"./IMG-20260916-WA2077.jpg"},
+{name:"CLAAS 8700",price:185,image:"./IMG-20260920-WA7092.jpg"},
+{name:"CASE 4540",price:145,image:"./IMG-20260920-WA5226.jpg"}
+];
+const grid=document.getElementById('grid');
+products.forEach(p=>{
+ grid.innerHTML+=`<div class="card"><img src="${p.image}"><div class="body"><b style="font-size:12px">${p.name}</b><div class="price">π ${p.price}</div><button class="btn" onclick="openModal('${p.name}',${p.price})">Buy with Pi</button></div></div>`;
+});
+function openModal(n,p){ if(!piUser){ piLogin(); return; } currentProduct={name:n,price:p}; document.getElementById('m-name').innerText=n; document.getElementById('m-price').innerText="π "+p; document.getElementById('modal').style.display='flex'; }
+function closeModal(){ document.getElementById('modal').style.display='none'; }
+function confirmPay(){
+ const addr=document.getElementById('d-address').value, phone=document.getElementById('d-phone').value, cname=document.getElementById('d-name').value;
+ if(!addr||!phone){ alert("Fill address & phone"); return; }
+ closeModal();
+ Pi.createPayment({amount:currentProduct.price,memo:currentProduct.name,metadata:{delivery:addr}},{
+   onReadyForServerApproval:id=>{ log("Approve: "+id); fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:id})})},
+   onReadyForServerCompletion:(id,txid)=>{ log("Complete: "+txid); alert("✅ Paid! Delivery to: "+addr); },
+   onCancel:()=>alert("Cancelled"), onError:(e)=>{ log("Pay Error "+e); alert("Pay Error"); }
+ });
+}
+</script>
+</body></html>
