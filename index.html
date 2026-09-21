@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Equipment Market</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#f1f5eb}
+.header{background:#2e7d32;color:#fff;padding:12px;text-align:center;position:sticky;top:0;z-index:99}
+.switch button{padding:6px 16px;border-radius:20px;border:2px solid #fff;font-weight:bold;margin:3px}
+.active{background:#fff;color:#2e7d32}.inactive{background:transparent;color:#fff}
+.grid{padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.card img{width:100%;height:130px;object-fit:cover;background:#ddd;display:block}
+.info{padding:7px}.name{font-size:11px;font-weight:bold;height:32px;overflow:hidden}
+.price{color:#2e7d32;font-weight:bold}
+.btn{width:100%;padding:8px;background:#2e7d32;color:#fff;border:none;border-radius:8px;font-weight:bold;margin-top:4px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;justify-content:center;align-items:center;padding:10px}
+.box{background:#fff;width:100%;max-width:360px;border-radius:12px;padding:14px}
+.box input,.box textarea{width:100%;padding:9px;margin:4px 0;border:1px solid #ccc;border-radius:7px;box-sizing:border-box}
+</style>
+</head><body>
+<div class="header">
+<h3 style="margin:0">🚜 Agri Equipment - 24 MACHINES</h3>
+<div style="margin-top:8px">
+<button id="bt-test" class="active" onclick="setMode('testnet')">Testnet</button>
+<button id="bt-main" class="inactive" onclick="setMode('mainnet')">Mainnet</button>
+<a href="https://wa.me/27700000000" target="_blank"><button style="padding:6px 12px;border-radius:8px;border:none;background:#25D366;color:#fff;font-weight:bold">WhatsApp</button></a>
+</div>
+</div>
+<div class="grid" id="grid">Loading...</div>
+
+<div class="modal" id="modal"><div class="box">
+<img id="m-img" src="" style="width:100%;height:140px;object-fit:cover;border-radius:8px">
+<h4 id="m-name" style="margin:6px 0;font-size:13px"></h4>
+<div id="m-price" style="color:#2e7d32;font-weight:bold;margin-bottom:6px"></div>
+<input id="d-name" placeholder="Full Name *">
+<input id="d-phone" placeholder="Phone *">
+<textarea id="d-address" rows="2" placeholder="Address *"></textarea>
+<button class="btn" onclick="doPay()">Pay with Pi</button>
+<button class="btn" style="background:#888" onclick="closeM()">Cancel</button>
+</div></div>
+
+<script>
+var mode='testnet'; var cur=null;
+try{ Pi.init({version:"2.0",sandbox:true}); }catch(e){}
+
+function setMode(m){
+ mode=m;
+ document.getElementById('bt-test').className = m=='testnet'?'active':'inactive';
+ document.getElementById('bt-main').className = m=='mainnet'?'active':'inactive';
+ try{ Pi.init({version:"2.0",sandbox:m=='testnet'}); }catch(e){}
+}
+
+var products=[
+["KUBOTA PRO 6000 Sprayer",2.5,"IMG-20260916-WA0169.jpg"],
+["JD X9 1100 Combine",8.9,"IMG-20260916-WA3079.jpg"],
+["JD 4120R Sprayer 120ft",4.2,"IMG-20260916-WA2077.jpg"],
+["CLAAS LEXION 8700",6.5,"IMG-20260920-WA7092.jpg"],
+["CASE 4540 Floater",3.8,"IMG-20260920-WA5226.jpg"],
+["JD 8R 410 + Disc",3.2,"IMG-20260920-WA3637.jpg"],
+["JD 8R Tillage",2.8,"IMG-20260917-WA4818.jpg"],
+["JD DB120 Planter",3.5,"IMG-20260920-WA4385.jpg"],
+["Kubota XTA Sprayer",1.8,"IMG-20260920-WA1709.jpg"],
+["JD 9RX 640 640HP",12,"IMG-20260921-WA4395.jpg"],
+["New Holland CR11 775HP",11,"IMG-20260921-WA0033.jpg"],
+["Fendt 1050 Vario 517HP",9.5,"IMG-20260921-WA1772.jpg"],
+["CAT Challenger MT875",8.5,"IMG-20260921-WA0256.jpg"],
+["Case IH Quadtrac 715 715HP",12,"IMG-20260921-WA2164.jpg"],
+["JD S780 Combine 471HP",7.5,"IMG-20260921-WA9268.jpg"],
+["Fendt IDEAL 10T 790HP",10.5,"IMG-20260921-WA6086.jpg"],
+["Case IH Magnum 400 AFS",6.2,"IMG-20260921-WA2395.jpg"],
+["New Holland T9.700 SmartTrax",11.5,"IMG-20260921-WA5915.jpg"],
+["Kubota M8-20 210HP",2.2,"IMG-20260921-WA2428.jpg"],
+["CLAAS Axion 960 Terra Trac",5.8,"IMG-20260921-WA2479.jpg"],
+["Fruit Harvester Apple",5.2,"IMG-20260921-WA2479.jpg"],
+["Kuhn Axis Spreader",2.1,"IMG-20260921-WA5882.jpg"],
+["Amazone Spreader",3.4,"IMG-20260921-WA4183.jpg"],
+["Kverneland Exacta",2.8,"IMG-20260921-WA2400.jpg"]
+];
+
+var g=document.getElementById('grid'); var h='';
+for(var i=0;i<products.length;i++){
+ var p=products[i];
+ h+='<div class="card"><img src="./'+p[2]+'" onerror="this.src=\'https://picsum.photos/seed/'+i+'/400/300\'"><div class="info"><div class="name">'+p[0]+'</div><div class="price">Pi '+p[1]+'</div><button class="btn" onclick="openM('+i+')">Buy with Pi</button></div></div>';
+}
+g.innerHTML=h;
+
+function openM(i){
+ cur=products[i];
+ document.getElementById('m-name').innerText=cur[0];
+ document.getElementById('m-price').innerText='Pi '+cur[1]+' ('+mode+')';
+ var img=document.getElementById('m-img'); img.src='./'+cur[2]; img.onerror=function(){this.src='https://picsum.photos/seed/'+i+'/400/300';};
+ document.getElementById('modal').style.display='flex';
+}
+function closeM(){ document.getElementById('modal').style.display='none'; }
+
+function doPay(){
+ var nm=document.getElementById('d-name').value.trim();
+ var ph=document.getElementById('d-phone').value.trim();
+ var ad=document.getElementById('d-address').value.trim();
+ if(!nm||!ph||!ad){ alert('Fill all fields'); return; }
+ closeM();
+ try{
+  Pi.authenticate(['username','payments'],function(){}).then(function(){
+   Pi.createPayment({amount:Number(cur[1]),memo:cur[0],metadata:{product:cur[0],buyer:nm,phone:ph,addr:ad,mode:mode}},{
+    onReadyForServerApproval:function(pid){ fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid})}); },
+    onReadyForServerCompletion:function(pid,txid){ fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid,txid:txid})}); alert('PAID Pi '+cur[1]+' Tx:'+txid); },
+    onCancel:function(){ alert('Cancelled'); },
+    onError:function(e){ alert('Error '+(e.message||JSON.stringify(e))); }
+   });
+  }).catch(function(e){ alert('Open in Pi Browser to pay'); });
+ }catch(e){ alert('Open in Pi Browser'); }
+}
+</script>
+</body></html>
