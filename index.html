@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Equipment Market</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#f1f5eb;padding-bottom:80px}
+.header{background:#2e7d32;color:#fff;padding:14px;text-align:center;position:sticky;top:0;z-index:1000}
+.switch{display:flex;justify-content:center;gap:10px;margin:8px 0}
+.switch button{padding:7px 18px;border-radius:20px;border:2px solid #fff;font-weight:bold;cursor:pointer}
+.active{background:#fff;color:#2e7d32} .inactive{background:transparent;color:#fff}
+.top-btn{padding:9px 14px;border:none;border-radius:10px;font-weight:bold;margin:4px}
+.grid{padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.card img{width:100%;height:135px;object-fit:cover;background:#e8e8e8}
+.info{padding:8px}
+.name{font-size:11px;font-weight:bold;height:34px;overflow:hidden;line-height:1.2}
+.price{color:#2e7d32;font-weight:bold;font-size:14px}
+.btn-buy{width:100%;padding:9px;background:#2e7d32;color:#fff;border:none;border-radius:9px;font-weight:bold;margin-top:4px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;justify-content:center;align-items:center;padding:12px}
+.box{background:#fff;width:100%;max-width:360px;border-radius:14px;padding:16px}
+.box input,.box textarea{width:100%;padding:10px;margin:5px 0;border:1px solid #ccc;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="header">
+<h2>🚜 Agri Equipment - 24 MACHINES</h2>
+<div class="switch">
+<button id="btn-test" class="active" onclick="setMode('testnet')">Testnet</button>
+<button id="btn-main" class="inactive" onclick="setMode('mainnet')">Mainnet</button>
+</div>
+<div>
+<a href="https://wa.me/27700000000" target="_blank"><button class="top-btn" style="background:#25D366;color:#fff">WhatsApp</button></a>
+</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="modal" id="modal"><div class="box">
+<img id="m-img" src="" style="width:100%;height:150px;object-fit:cover;border-radius:10px">
+<h3 id="m-name" style="font-size:14px;margin:6px 0"></h3>
+<div id="m-price" style="color:#2e7d32;font-weight:bold"></div>
+<input id="d-name" placeholder="Full Name *">
+<input id="d-phone" placeholder="Phone *">
+<textarea id="d-address" rows="2" placeholder="Delivery Address *"></textarea>
+<button class="btn-buy" onclick="confirmPay()">✅ Pay with Pi</button>
+<button class="btn-buy" style="background:#888" onclick="closeModal()">Cancel</button>
+</div></div>
+
+<script>
+let currentMode='testnet', currentProduct=null;
+try{ Pi.init({version:"2.0",sandbox:true}); }catch(e){}
+
+function setMode(m){
+ currentMode=m;
+ document.getElementById('btn-test').className = m==='testnet' ? 'active' : 'inactive';
+ document.getElementById('btn-main').className = m==='mainnet' ? 'active' : 'inactive';
+ try{ Pi.init({version:"2.0",sandbox:m==='testnet'}); }catch(e){}
+}
+
+const products=[
+{name:"KUBOTA PRO 6000 Sprayer",price:2.5,image:"IMG-20260916-WA0169.jpg"},
+{name:"JD X9 1100 Combine",price:8.9,image:"IMG-20260916-WA3079.jpg"},
+{name:"JD 4120R Sprayer 120ft",price:4.2,image:"IMG-20260916-WA2077.jpg"},
+{name:"CLAAS LEXION 8700",price:6.5,image:"IMG-20260920-WA7092.jpg"},
+{name:"CASE 4540 Floater",price:3.8,image:"IMG-20260920-WA5226.jpg"},
+{name:"JD 8R 410 + Disc
