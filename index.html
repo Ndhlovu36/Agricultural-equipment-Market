@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agricultural Equipment Market - Pi Network</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+  body{font-family:Arial;margin:0;background:#fff8e1}
+  header{background:#785500;color:white;padding:20px;text-align:center}
+  .top{padding:10px;text-align:right;background:#fff}
+  button{padding:12px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+  .login{background:#222;color:white}
+  .pay{background:#785500;color:white;width:100%;margin-top:10px}
+  .products{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:15px}
+  .card{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+  .card h3{margin:5px 0}
+  .price{color:#785500;font-weight:bold;font-size:18px}
+  .status{color:green;font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AGRICULTURAL EQUIPMENT MARKET</h1>
+  <p>Pi Network Payment - South Africa - 22 Sep 2026</p>
+</header>
+
+<div class="top">
+  <button id="loginBtn" class="login" onclick="login()">Login with Pi</button>
+  <span id="userLabel"></span>
+</div>
+
+<div class="products">
+
+  <div class="card">
+    <h3>Tractor Rental 1 Day</h3>
+    <p>AGRI-001 Hire - 22 Sep 2026</p>
+    <p class="price">480 Pi - Pi ONLY</p>
+    <p class="status">Status: Confirmed - No fiat</p>
+    <button class="pay" onclick="payWithPi(480, 'AGRI-001 Hire')">Pay 480 Pi</button>
+  </div>
+
+  <div class="card">
+    <h3>Irrigation Kit Sale</h3>
+    <p>AGRI-002 Sale - 22 Sep 2026</p>
+    <p class="price">350 Pi - Pi ONLY</p>
+    <p class="status">Status: Confirmed - No fiat</p>
+    <button class="pay" onclick="payWithPi(350, 'AGRI-002 Sale')">Pay 350 Pi</button>
+  </div>
+
+  <div class="card">
+    <h3>Seeds 50kg Maize</h3>
+    <p>AGRI-003 Seeds - 22 Sep 2026</p>
+    <p class="price">110 Pi - Pi ONLY</p>
+    <p class="status">Status: Confirmed - No fiat</p>
+    <button class="pay" onclick="payWithPi(110, 'AGRI-003 Seeds')">Pay 110 Pi</button>
+  </div>
+
+  <div class="card">
+    <h3>Fertilizer 100kg</h3>
+    <p>AGRI-004 Supply - 22 Sep 2026</p>
+    <p class="price">95 Pi - Pi ONLY</p>
+    <p class="status">Status: Confirmed - No fiat</p>
+    <button class="pay" onclick="payWithPi(95, 'AGRI-004 Supply')">Pay 95 Pi</button>
+  </div>
+
+  <div class="card">
+    <h3>Harvester Hire 1 Day</h3>
+    <p>AGRI-005 Hire - 22 Sep 2026</p>
+    <p class="price">550 Pi - Pi ONLY</p>
+    <p class="status">Status: Confirmed - No fiat</p>
+    <button class="pay" onclick="payWithPi(550, 'AGRI-005 Hire')">Pay 550 Pi</button>
+  </div>
+
+</div>
+
+<script>
+// INIT PI SDK - NO REDIRECTS
+Pi.init({ version: "2.0", sandbox: false });
+
+let currentUser = null;
+
+async function login() {
+  try {
+    const scopes = ['payments', 'username'];
+    const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+    currentUser = auth.user;
+    document.getElementById("loginBtn").innerText = "✓ Logged in";
+    document.getElementById("userLabel").innerText = " Hi " + auth.user.username;
+    localStorage.setItem("pi_user", auth.user.username);
+    console.log("Auth success", auth);
+    // NO reload, NO redirect - this was freezing login
+  } catch (err) {
+    console.error("Auth failed", err);
+    alert("Login failed - open in Pi Browser");
+  }
+}
+
+function onIncompletePaymentFound(payment) {
+  console.log("Found incomplete payment", payment);
+  return;
+}
+
+// FIXED PAYMENT - DOES NOT GO BACK TO PRODUCTS
+async function payWithPi(amount, productId) {
+  if (!currentUser) {
+    alert("Please Login with Pi first");
+    await login();
+    return;
+  }
+  try {
+    console.log("Creating payment", amount, productId);
+    const payment = await Pi.createPayment({
+      amount: amount,
+      memo: productId + " - AGRI Market 22 Sep 2026",
+      metadata: { productId: productId, app: "Agricultural Equipment Market" }
+    }, {
+      onReadyForServerApproval: function(paymentId) {
+        console.log("Ready for server approval:", paymentId);
+        // TODO: Call your backend /approve here
+        // fetch('/approve', {method:'POST', body: JSON.stringify({paymentId})})
+      },
+      onReadyForServerCompletion: function(paymentId, txid) {
+        console.log("Payment completed:", paymentId, txid);
+        alert("SUCCESS! Paid " + amount + " Pi for " + productId + "\nTxID: " + txid);
+        // fetch('/complete', ...)
+      },
+      onCancel: function(paymentId) {
+        console.log("Payment cancelled:", paymentId);
+      },
+      onError: function(error, payment) {
+        console.error("Payment error:", error);
+        alert("Payment failed: " + error.message);
+      }
+    });
+  } catch (err) {
+    console.error("createPayment error", err);
+  }
+}
+</script>
+
+</body>
+</html>
