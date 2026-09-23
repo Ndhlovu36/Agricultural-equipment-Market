@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Equipment Market</title><script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a1a0f;color:#fff;font-family:Arial}header{background:#0f3d1c;padding:14px;text-align:center;border-bottom:3px solid #4caf50}.tabs{display:flex;justify-content:center;gap:8px;padding:10px;background:#0a2a12}.tab{padding:10px 18px;border-radius:20px;border:1px solid #4caf50;background:#143d1f;color:#fff;font-weight:900;cursor:pointer}.tab.active{background:#4caf50;color:#000}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}.card{background:#143d1f;border-radius:10px;overflow:hidden;border:1px solid #2a6a3a;text-align:center}.card img{width:100%;height:150px;object-fit:cover;background:#000}.card b{font-size:12px;display:block;padding:5px}.card button{width:92%;margin:6px;padding:9px;background:#4caf50;border:none;border-radius:8px;font-weight:900}#detail{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:1000;padding:12px;overflow:auto}#box{background:#143d1f;padding:14px;border-radius:12px;max-width:420px;margin:20px auto;border:2px solid #4caf50}input{width:100%;padding:11px;margin:5px 0;border-radius:7px;border:none}.wa{position:fixed;bottom:18px;right:12px;z-index:9999;background:#25D366;color:#fff;padding:14px 20px;border-radius:30px;text-decoration:none;font-weight:900}.wa-del{position:fixed;bottom:18px;left:12px;z-index:9999;background:#ff9800;color:#000;padding:14px 16px;border-radius:30px;text-decoration:none;font-weight:900;font-size:13px}.modeBar{text-align:center;padding:6px;font-weight:900;font-size:12px}</style>
+</head><body>
+<header><h2>🚜 Agri Equipment Market</h2><p id="modeTxt">MAINNET - Real Pi</p></header>
+<div class="tabs"><button id="tabMain" class="tab active" onclick="setMode('mainnet')">🟢 MAINNET</button><button id="tabTest" class="tab" onclick="setMode('testnet')">🟡 TESTNET</button></div>
+<div id="modeBar" class="modeBar" style="background:#4caf50;color:#000">Mode: MAINNET - Real payments</div>
+<div class="grid" id="grid"></div>
+<div id="detail"><div id="box"><h3 id="dT"></h3><img id="dI" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin:8px 0"><p id="dP" style="color:#4caf50;font-weight:900"></p><p id="dMode" style="font-size:11px;color:#ffcc00;margin-bottom:6px"></p><input id="dn" placeholder="Full Name *"><input id="dp" placeholder="Phone *"><input id="da" placeholder="Delivery Address *"><input id="dd" placeholder="Town/Province *"><button id="pb" onclick="Pay()" style="width:100%;padding:13px;background:#ffcc00;border:none;border-radius:10px;font-weight:900;margin-top:8px">💰 Pay with Pi</button><button onclick="sendDeliveryWA()" style="width:100%;padding:11px;background:#25D366;border:none;border-radius:10px;font-weight:900;margin-top:8px">📦 WhatsApp for Delivery</button><p id="ps" style="text-align:center;margin-top:8px;color:#ff0"></p><button onclick="detail.style.display='none'" style="width:100%;margin-top:8px;padding:9px;background:#333;color:#fff;border:none;border-radius:8px">Close</button></div></div>
+<div style="text-align:center;padding:16px;background:#0a2a12;border-top:2px solid #4caf50"><a href="mailto:agriequipmentmarket@gmail.com" style="color:#4caf50;font-weight:900;text-decoration:none">📧 agriequipmentmarket@gmail.com</a></div>
+<a class="wa" href="https://wa.me/27607263726?text=Hi%20Sales" target="_blank">💬 Sales</a>
+<a class="wa-del" href="https://wa.me/27607263726?text=Hi%20Delivery%20enquiry" target="_blank">🚚 Delivery</a>
+<script>
+let currentMode=localStorage.getItem('piMode')||'mainnet';let cur=null;
+function setMode(m){currentMode=m;localStorage.setItem('piMode',m);tabMain.classList.toggle('active',m==='mainnet');tabTest.classList.toggle('active',m==='testnet');modeBar.innerText=m==='mainnet'?'Mode: MAINNET - Real payments':'Mode: TESTNET - Test Pi only';modeBar.style.background=m==='mainnet'?'#4caf50':'#ffcc00';modeTxt.innerText=m==='mainnet'?'MAINNET - Real Pi':'TESTNET - Test Pi';initPi();render()}
+function initPi(){try{Pi.init({version:"2.0",sandbox:currentMode==='testnet'})}catch(e){}}
+initPi();
+
+// YOUR ACTUAL ROOT FILES - DIRECT LOAD, NO API
+const rootFiles=[
+"IMG-20260916-WA0000.jpg","IMG-20260916-WA0001.jpg","IMG-20260916-WA0002.jpg","IMG-20260916-WA0003.jpg","IMG-20260916-WA0004.jpg",
+"IMG-20260916-WA0005.jpg","IMG-20260916-WA0006.jpg","IMG-20260916-WA0007.jpg","IMG-20260916-WA0008.jpg","IMG-20260916-WA0009.jpg",
+"IMG-20260917-WA0000.jpg","IMG-20260917-WA0001.jpg","IMG-20260917-WA0002.jpg","IMG-20260917-WA0003.jpg",
+"IMG-20260920-WA0000.jpg","IMG-20260920-WA0001.jpg","IMG-20260920-WA0002.jpg","IMG-20260920-WA0003.jpg","IMG-20260920-WA0004.jpg",
+"IMG-20260920-WA0005.jpg","IMG-20260920-WA0006.jpg","IMG-20260920-WA0007.jpg","IMG-20260920-WA0008.jpg","IMG-20260920-WA0009.jpg"
+];
+
+let products=rootFiles.map((f,i)=>({name:`Equipment ${String(i+1).padStart(2,'0')}`,price:5+(i%20),img:f,fileName:f}));
+
+function render(){
+grid.innerHTML=products.map((p,i)=>`
+<div class="card">
+<img src="${p.img}" onerror="this.style.display='none'" onload="this.style.display='block'">
+<b>${p.name}<br><span style
