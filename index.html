@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Market Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;background:#0a2a12;color:#fff;font-family:Arial}
+.top{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#123d1a;position:sticky;top:0;z-index:10}
+.tabs{display:flex;gap:6px}
+.tab{padding:6px 12px;border-radius:20px;background:#1a4d24;cursor:pointer;font-size:13px}
+.tab.active{background:#2ecc71;color:#000;font-weight:bold}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+.card{background:#123d1a;border-radius:10px;overflow:hidden;text-align:center;padding-bottom:6px}
+.card img{width:100%;height:150px;object-fit:cover}
+.pi{color:#2ecc71;font-weight:bold;margin:4px}
+button{width:90%;margin:6px;background:#2ecc71;border:0;border-radius:6px;padding:9px;font-weight:bold;cursor:pointer}
+input{width:90%;padding:9px;margin:6px;border-radius:6px;border:0}
+.foot{text-align:center;padding:15px;background:#123d1a;margin-top:10px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="top">
+<div id="user">Not logged</div>
+<div class="tabs">
+<div id="testTab" class="tab active" onclick="setNet(true)">Testnet</div>
+<div id="mainTab" class="tab" onclick="setNet(false)">Mainnet</div>
+</div>
+<button onclick="login()" style="width:auto;padding:6px 14px">Login Pi</button>
+</div>
+
+<div style="text-align:center;padding:8px">
+<input id="email" placeholder="Your email for receipt - agriequipmentmarket@gmail.com">
+</div>
+
+<h3 style="text-align:center">24 Machines - Pi Only</h3>
+<div class="grid" id="grid">Loading machines...</div>
+<div class="foot">Contact: agriequipmentmarket@gmail.com<br>Pi App Wallet Payments - Secure</div>
+
+<script>
+let isTestnet = true;
+Pi.init({version:"2.0", sandbox:true});
+
+function setNet(test){
+ isTestnet = test;
+ document.getElementById('testTab').classList.toggle('active', test);
+ document.getElementById('mainTab').classList.toggle('active', !test);
+ Pi.init({version:"2.0", sandbox:test});
+}
+
+function onIncomplete(payment){
+ console.log("Incomplete found", payment);
+ if(payment.transaction && payment.transaction.txid){
+   return fetch("/api/complete",{
+     method:"POST", headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({paymentId:payment.identifier, txid:payment.transaction.txid})
+   });
+ }
+ return fetch("/api/complete",{
+   method:"POST", headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({paymentId:payment.identifier, txid:""})
+ });
+}
+
+function login(){
+ Pi.authenticate(["username","payments"],{onIncompletePaymentFound:onIncomplete})
+ .then(auth=>{document.getElementById('user').innerText="Hi "+auth.user.username})
+ .catch(e=>alert("Login failed: "+e));
+}
+
+const names=["16 0169","16 2077","16 2079","16 2080","16 2081","16 2082","16 2083","16 2084","16 2085","16 2086","16 2087","16 2088","16 2089","16 2090","16 2091","16 2092","16 2093","16 2094","16 2095","16 2096","16 2097","16 2098","16 2099","16 2100"];
+const prices=[21,8,7,11,12,15,18,22,9,14,16,19,13,10,17,20,23,24,25,26,27,28,29,30];
+
+fetch("https://api.github.com/repos/ndhlovu36/agricultural-equipment-market/contents")
+.then(r=>r.json()).then(files=>{
+ let imgs=files.filter(f=>f.name.toLowerCase().endsWith(".jpg")).map(f=>f.download_url);
+ let h="";
+ for(let i=0;i<24;i++){
+  h+=`<div class=card><img src="${imgs[i%imgs.length]}"><div>${names[i]}</div><div class=pi>${prices[i]} Pi</div><button onclick="buy(${prices[i]},'${names[i]}')">Buy ${prices[i]} Pi</button></div>`;
+ }
+ document.getElementById('grid').innerHTML=h;
+});
+
+function buy(amount,memo){
+ let e=document.getElementById('email').value;
+ if(!e){alert("Enter email first");return;}
+ Pi.authenticate(["username","payments"],{onIncompletePaymentFound:onIncomplete}).then(()=>{
+   Pi.createPayment({
+     amount: amount,
+     memo: memo,
+     metadata: {email:e, machine:memo}
+   },{
+     onReadyForServerApproval: function(paymentId){
+       console.log("Approving",paymentId);
+       fetch("/api/approve",{
+         method:"POST",
+         headers:{"Content-Type":"application/json"},
+         body:JSON.stringify({paymentId:paymentId})
+       }).then(r=>r.json()).then(j=>console.log("Approved",j))
+       .catch(err=>console.error(err));
+     },
+     onReadyForServerCompletion: function(paymentId, txid){
+       console.log("Completing",paymentId, txid);
+       fetch("/api/complete",{
+         method:"POST",
+         headers:{"Content-Type":"application/json"},
+         body:JSON.stringify({paymentId:paymentId, txid:txid})
+       }).then(()=>alert("SUCCESS! Paid "+amount+" Pi to App Wallet!\nTX: "+txid+"\nReceipt to: "+e))
+       .catch(err=>alert("Complete error: "+err));
+     },
+     onCancel: function(){alert("Payment cancelled")},
+     onError: function(err){alert("Payment error: "+err); console.error(err)}
+   });
+ }).catch(err=>alert("Auth failed: "+err));
+}
+</script>
+</body>
+</html>
