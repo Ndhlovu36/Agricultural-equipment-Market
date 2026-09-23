@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Agri Market Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;background:#0a2a12;color:#fff;font:14px Arial}
+.top{display:flex;justify-content:space-between;padding:10px;background:#123d1a}
+.tabs{display:flex;gap:6px;justify-content:center;padding:8px}
+.tab{padding:6px 14px;border-radius:20px;background:#1a4d23;border:1px solid #2ecc71}
+.tab.active{background:#2ecc71;color:#000;font-weight:bold}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+.card{background:#123d1a;border-radius:10px;overflow:hidden;text-align:center}
+.card img{width:100%;height:140px;object-fit:cover}
+.pi{color:#2ecc71;font-weight:bold}
+button{width:90%;margin:6px;background:#2ecc71;border:0;border-radius:6px;padding:8px;font-weight:bold}
+input{width:90%;padding:8px;margin:6px;border-radius:6px;border:0}
+.foot{text-align:center;padding:15px;background:#123d1a;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="top">
+<div id="user">Not logged</div>
+<button onclick="login()" style="width:auto">Login with Pi</button>
+</div>
+<div class="tabs">
+<div class="tab active" id="tMain" onclick="setNet(false)">Mainnet</div>
+<div class="tab" id="tTest" onclick="setNet(true)">Testnet</div>
+</div>
+<div style="text-align:center">
+<input id="email" placeholder="Buyer email for delivery">
+</div>
+<h3 style="text-align:center">24 Machines - Pi Only</h3>
+<div class="grid" id="grid">Loading...</div>
+<div class="foot">Contact: agriequipmentmarket@gmail.com<br>Pi Only</div>
+
+<script>
+Pi.init({version:"2.0",sandbox:false});
+let currentTest=false;
+function setNet(t){
+ currentTest=t;
+ Pi.init({version:"2.0",sandbox:t});
+ tMain.className=t?"tab":"tab active";
+ tTest.className=t?"tab active":"tab";
+}
+
+function onIncomplete(payment){
+ console.log("Found incomplete",payment);
+ return Pi.completePayment(payment.identifier);
+}
+
+function login(){
+ Pi.authenticate(["username","payments"],{onIncompletePaymentFound:onIncomplete})
+ .then(a=>{user.innerText="Hi "+a.user.username})
+ .catch(e=>alert(e));
+}
+
+const names=["16 0169","16 2077","16 2079","16 2080","16 2081","16 2082","16 2083","16 2084","16 2085","16 2086","16 2087","16 2088","16 2089","16 2090","16 2091","16 2092","16 2093","16 2094","16 2095","16 2096","16 2097","16 2098","16 2099","16 2100"];
+const prices=[21,8,7,11,12,15,18,22,9,14,16,19,13,10,17,20,23,24,25,26,27,28,29,30];
+
+fetch("https://api.github.com/repos/ndhlovu36/agricultural-equipment-market/contents")
+.then(r=>r.json()).then(files=>{
+ let imgs=files.filter(f=>f.name.toLowerCase().endsWith(".jpg")).map(f=>f.name);
+ let h="";
+ for(let i=0;i<24;i++){
+  let img=imgs[i%imgs.length];
+  h+=`<div class=card><img src="${img}"><div>${names[i]}</div><div class=pi>${prices[i]} Pi</div><button onclick="buy(${prices[i]},'${names[i]}')">Buy ${prices[i]} Pi</button></div>`;
+ }
+ grid.innerHTML=h;
+});
+
+function buy(amount,memo){
+ let e=email.value;
+ if(!e){alert("Enter buyer email");return;}
+ if(typeof Pi==="undefined"){alert("Open in Pi Browser");return;}
+ 
+ Pi.authenticate(["username","payments"],{onIncompletePaymentFound:onIncomplete}).then(()=>{
+  Pi.createPayment({
+   amount:amount,
+   memo:memo,
+   metadata:{email:e,machine:memo,shop:"agriequipmentmarket@gmail.com"}
+  },{
+   onReadyForServerApproval:function(id){console.log("approve "+id);},
+   onReadyForServerCompletion:function(id,txid){alert("Paid "+amount+" Pi TX:"+txid);},
+   onCancel:function(id){alert("Cancelled");},
+   onError:function(err){alert("Error: "+err);}
+  });
+ });
+}
+</script>
+</body>
+</html>
