@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Equipment Market - South Africa</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a2a12;color:#fff;font-family:Arial}
+header{background:#0f3d1c;padding:16px;text-align:center;border-bottom:3px solid #4caf50}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:12px}
+.card{background:#143d1f;border-radius:12px;overflow:hidden;border:1px solid #2a6a3a}
+.card img{width:100%;height:140px;object-fit:cover;background:#000}
+.card b{padding:8px;display:block}
+.card button{width:90%;margin:8px 5%;padding:10px;background:#4caf50;border:none;border-radius:8px;font-weight:900;cursor:pointer}
+#detail{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);display:none;z-index:100;padding:16px;overflow:auto}
+#detailBox{background:#143d1f;padding:16px;border-radius:12px;max-width:420px;margin:20px auto;border:2px solid #4caf50}
+input{width:100%;padding:11px;margin:6px 0;border-radius:8px;border:none}
+.payBtn{width:100%;padding:14px;background:#ffcc00;border:none;border-radius:10px;font-weight:900;font-size:16px;cursor:pointer;margin-top:10px}
+.emailFooter{text-align:center;padding:16px;background:#0a2a12;border-top:2px solid #4caf50}
+.waFloat{position:fixed;bottom:18px;right:14px;z-index:9999;background:#25D366;color:#fff;padding:14px 20px;border-radius:30px;text-decoration:none;font-weight:900;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<header>
+<h2>🚜 Agri Equipment Market</h2>
+<p>South Africa - Pi Payments Accepted</p>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<div id="detail">
+<div id="detailBox">
+<h3 id="d-title"></h3>
+<img id="d-img" src="" style="width:100%;height:200px;object-fit:cover;border-radius:10px;margin:10px 0">
+<p id="d-price" style="font-weight:900;color:#4caf50;font-size:18px"></p>
+<input id="d-name" placeholder="Full Name *">
+<input id="d-phone" placeholder="Phone *">
+<input id="d-addr" placeholder="Delivery Address *">
+<button id="payBtn" class="payBtn" onclick="Pay()">💰 Pay with Pi</button>
+<p id="payStatus" style="text-align:center;margin-top:10px;color:#ffcc00"></p>
+<button onclick="document.getElementById('detail').style.display='none'" style="width:100%;margin-top:10px;padding:10px;background:#333;color:#fff;border:none;border-radius:8px">Close</button>
+</div>
+</div>
+
+<div class="emailFooter">
+<a href="mailto:agriequipmentmarket@gmail.com" style="color:#4caf50;font-weight:900;text-decoration:none">📧 agriequipmentmarket@gmail.com</a>
+</div>
+
+<a class="waFloat" href="https://wa.me/27607263726?text=Hi%20Agri%20Equipment%20Market%20I%20need%20equipment" target="_blank">💬 Send WhatsApp</a>
+
+<script>
+const Pi = window.Pi;
+Pi.init({version:"2.0",sandbox:false});
+let piUser=null;
+let currentProduct=null;
+
+// 24 PRODUCTS - uses your root images, fallback to online if missing
+const products=[
+{name:"Massey Ferguson Tractor",price:15,img:"1.jpg"},{name:"John Deere Tractor",price:18,img:"2.jpg"},
+{name:"Disc Plough",price:8,img:"3.jpg"},{name:"Rotavator",price:7,img:"4.jpg"},
+{name:"Seeder Machine",price:6,img:"5.jpg"},{name:"Harvester",price:22,img:"6.jpg"},
+{name:"Sprayer",price:5,img:"7.jpg"},{name:"Trailer",price:9,img:"8.jpg"},
+{name:"Cultivator",price:6,img:"9.jpg"},{name:"Balers",price:12,img:"10.jpg"},
+{name:"Thresher",price:10,img:"11.jpg"},{name:"Mower",price:7,img:"12.jpg"},
+{name:"Irrigation Pump",price:4,img:"13.jpg"},{name:"Tractor Blade",price:5,img:"14.jpg"},
+{name:"Potato Planter",price:8,img:"15.jpg"},{name:"Fertilizer Spreader",price:6,img:"16.jpg"},
+{name:"Hay Rake",price:5,img:"17.jpg"},{name:"Loader",price:14,img:"18.jpg"},
+{name:"Chisel Plough",price:7,img:"19.jpg"},{name:"Laser Leveler",price:11,img:"20.jpg"},
+{name:"Combine",price:25,img:"21.jpg"},{name:"Baler Twine",price:3,img:"22.jpg"},
+{name:"Maize Sheller",price:6,img:"23.jpg"},{name:"Tractor Tyre",price:4,img:"24.jpg"}
+];
+
+function render(){
+const g=document.getElementById('grid');
+g.innerHTML=products.map((p,i)=>`
+<div class="card">
+<img src="${p.img}" onerror="this.src='https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'" loading="lazy">
+<b>${p.name}<br><span
