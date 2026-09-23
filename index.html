@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri - 24 - FINAL</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;font-family:Arial;background:#f1f5eb}
+.header{background:#2e7d32;color:#fff;padding:10px;text-align:center;position:sticky;top:0;z-index:1000}
+.switch{display:flex;justify-content:center;gap:10px;margin:8px 0}
+.switch button{padding:8px 18px;border-radius:20px;border:2px solid #fff;font-weight:bold;cursor:pointer}
+.active{background:#fff;color:#2e7d32}.inactive{background:transparent;color:#fff;opacity:.7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+.card{background:#fff;border-radius:12px;overflow:hidden}
+.card img{width:100%;height:130px;object-fit:cover;background:#ddd}
+.info{padding:5px}.name{font-size:11px;font-weight:bold;height:30px;overflow:hidden}.price{color:#2e7d32;font-weight:bold;font-size:12px}
+.btn{width:100%;padding:8px;background:#2e7d32;color:#fff;border:none;border-radius:8px;font-weight:bold}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;justify-content:center;align-items:center}
+.box{background:#fff;width:95%;max-width:360px;border-radius:12px;padding:12px}
+.box input,.box textarea{width:100%;padding:8px;margin:4px 0;border:1px solid #ccc;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="header">
+<h3>🚜 Agri - 24 MACHINES</h3>
+<div id="userLabel" style="font-size:11px">Pi Browser required</div>
+<div class="switch">
+<button id="btn-test" class="active" onclick="setMode('testnet')">🟢 Testnet</button>
+<button id="btn-main" class="inactive" onclick="setMode('mainnet')">🔴 Mainnet</button>
+</div>
+<button id="loginBtn" onclick="loginPi()" style="background:#ffca28;border:none;padding:7px 14px;border-radius:8px;font-weight:bold">🔐 Login with Pi</button>
+</div>
+<div class="grid" id="grid"></div>
+<div class="modal" id="modal"><div class="box">
+<img id="m-img" style="width:100%;height:130px;object-fit:cover;border-radius:8px">
+<div id="m-name" style="font-weight:bold;font-size:13px"></div><div id="m-price" style="color:#2e7d32;font-weight:bold"></div><div id="m-mode" style="font-size:10px;color:#666"></div>
+<input id="d-name" placeholder="Full Name *"><input id="d-phone" placeholder="Phone *"><textarea id="d-address" placeholder="Address *"></textarea>
+<button id="payBtn" class="btn" onclick="confirmPay()">✅ Confirm Payment with Pi</button>
+<button class="btn" style="background:#888;margin-top:4px" onclick="closeModal()">Cancel</button><div id="payStatus" style="font-size:11px;text-align:center"></div>
+</div></div>
+
+<script>
+let currentMode='testnet', currentProduct=null, piUser=null;
+try{ Pi.init({version:"2.0",sandbox:true}); }catch(e){}
+
+function setMode(m){
+ currentMode=m;
+ document.getElementById('btn-test').className=m==='testnet'?'active':'inactive';
+ document.getElementById('btn-main').className=m==='mainnet'?'active':'inactive';
+ try{ Pi.init({version:"2.0",sandbox:m==='testnet'}); }catch(e){}
+ piUser=null; document.getElementById('loginBtn').innerText='🔐 Login with Pi ('+m+')';
+ document.getElementById('userLabel').innerText='Switched to '+m.toUpperCase()+' - login again';
+ render();
+}
+
+// SMART FINDER - tries every date you used
+function getCandidates(base){
+ // base like WA6086.jpg or 20260931-WA9268.jpg
+ let wa = base.match(/WA\d+\.jpg/i);
+ let num = wa? wa[0] : base;
+ return [
+  base,
+  "IMG-20260916-"+num, "IMG-20260917-"+num, "IMG-20260920-"+num, "IMG-20260921-"+num, "IMG-20260931-"+num,
+  "IMG-20260916-WA"+num.replace(/[^0-9]/g,'')+".jpg",
+  num, "IMG-"+num
+ ];
+}
+
+const products=[
+{name:"KUBOTA PRO 6000 Sprayer",price:2.5,image:"IMG-20260916-WA0169.jpg"},
+{name:"JD X9 1100 Combine",price:8.9,image:"IMG-20260916-WA3079.jpg"},
+{name:"JD 4120R Sprayer",price:4.2,image:"IMG-20260916-WA2077.jpg"},
+{name:"CLAAS LEXION 8700",price:6.5,image:"IMG-20260920-WA7092.jpg"},
+{name:"CASE 4540 Floater",price:3.8,image:"IMG-20260920-WA5226.jpg"},
+{name:"JD 8R 410 + Disc",price:3.2,image:"IMG-20260920-WA3637.jpg"},
+{name:"JD 8R Tillage",price:2.8,image:"IMG-20260917-WA4818.jpg"},
+{name:"JD DB120 Planter",price:3.5,image:"IMG-20260920-WA4385.jpg"},
+{name:"Kubota XTA Sprayer",price:1.8,image:"IMG-20260920-WA1709.jpg"},
+{name:"JD 9RX 640",price:12,image:"IMG-20260921-WA4395.jpg"},
+{name:"New Holland CR11",price:11,image:"IMG-20260921-WA0033.jpg"},
+{name:"Fendt 1050 Vario",price:9.5,image:"IMG-20260921-WA1772.jpg"},
+{name:"CAT Challenger",price:8.5,image:"IMG-20260921-WA0256.jpg"},
+{name:"Case Quadtrac 715",price:12,image:"IMG-20260921-WA2164.jpg"},
+{name:"JD S780 Combine",price:7.5,image:"WA9268.jpg"},
+{name:"Fendt IDEAL 10T",price:9.8,image:"WA6086.jpg"},
+{name:"Case IH Magnum 400",price:4.5,image:"WA2395.jpg"},
+{name:"New Holland T9.700 Smart Trax",price:10.5,image:"WA5915.jpg"},
+{name:"Kubota M8-200",price:3.3,image:"WA2428.jpg"},
+{name:"CLAAS Axion 960 Terra Trac",price:8.2,image:"WA4395.jpg"},
+{name:"Fruit Harvester",price:5.5,image:"WA2479.jpg"},
+{name:"Fertilizer 1 - Kuhn",price:1.4,image:"WA5882.jpg"},
+{name:"Fertilizer Spreader",price:1.2,image:"WA4183.jpg"},
+{name:"Fertilizer - Kverneland",price:1.3,image:"WA2400.jpg"}
+];
+
+function render(){
+ document.getElementById('grid').innerHTML=products.map((p,i)=>{
+  let cands = getCandidates(p.image);
+  return `<div class="card"><img src="${cands[0]}" data-cands='${JSON.stringify(cands)}' data-idx="0" onerror="tryNext(this)" loading="lazy"><div class="info"><div class="name">${p.name}</div><div class="price">π ${p.price}</div><button class="btn" onclick="openModal(${i})">Buy</button></div></div>`;
+ }).join('');
+}
+function tryNext(img){
+ let cands=JSON.parse(img.dataset.cands); let idx=parseInt(img.dataset.idx)+1;
+ if(idx < cands.length){ img.dataset.idx=idx; img.src=cands[idx]; }
+}
+
+function openModal(i){ currentProduct=products[i]; let realImg=document.querySelectorAll('.card img')[i].src; document.getElementById('m-img').src=realImg; document.getElementById('m-name').innerText=currentProduct.name; document.getElementById('m-price').innerText='π '+currentProduct.price; document.getElementById('m-mode').innerText=currentMode.toUpperCase(); document.getElementById('modal').style.display='flex'; }
+function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+async function loginPi(){
+ if(typeof Pi==='undefined'){ alert("Open in Pi Browser"); return; }
+ try{
+  const auth=await Pi.authenticate(['username','payments'], p=>{ fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:p.identifier,txid:p.transaction?.txid})}); });
+  piUser=auth.user; document.getElementById('userLabel').innerText="✓ "+auth.user.username+" - "+currentMode.toUpperCase(); document.getElementById('loginBtn').innerText="✓ "+auth.user.username;
+ }catch(e){ alert("Login fail: "+e.message); }
+}
+async function confirmPay(){
+ const n=document.getElementById('d-name').value, ph=document.getElementById('d-phone').value, ad=document.getElementById('d-address').value;
+ if(!n||!ph||!ad){ alert("Fill all"); return; }
+ if(!piUser){ await loginPi(); if(!piUser) return; }
+ document.getElementById('payBtn').innerText="⏳ Confirming...";
+ try{
+  await Pi.createPayment({amount:currentProduct.price,memo:currentProduct.name+" ("+currentMode+")",metadata:{product:currentProduct.name,mode:currentMode}},{
+   onReadyForServerApproval: async pid=>{ await fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid})}); },
+   onReadyForServerCompletion: async (pid,txid)=>{ await fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid,txid})}); alert("✅ CONFIRMED π "+currentProduct.price+" - "+currentMode.toUpperCase()+"\nTx: "+txid); closeModal(); document.getElementById('payBtn').innerText="✅ Confirm Payment with Pi"; },
+   onCancel:()=>{ document.getElementById('payBtn').innerText="✅ Confirm Payment with Pi"; },
+   onError:e=>{ document.getElementById('payStatus').innerText=e.message; document.getElementById('payBtn').innerText="✅ Confirm Payment with Pi"; }
+  });
+ }catch(e){ document.getElementById('payStatus').innerText=e.message; document.getElementById('payBtn').innerText="✅ Confirm Payment with Pi"; }
+}
+render();
+</script>
+</body>
+</html>
