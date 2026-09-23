@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Equipment Market - Pi Mainnet/Testnet</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#0a1a0f;color:#fff;font-family:Arial}
+header{background:#0f3d1c;padding:14px;text-align:center;border-bottom:3px solid #4caf50}
+.tabs{display:flex;justify-content:center;gap:8px;padding:10px;background:#0a2a12}
+.tab{padding:10px 18px;border-radius:20px;border:1px solid #4caf50;background:#143d1f;color:#fff;font-weight:900;cursor:pointer}
+.tab.active{background:#4caf50;color:#000}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
+.card{background:#143d1f;border-radius:10px;overflow:hidden;border:1px solid #2a6a3a;text-align:center}
+.card img{width:100%;height:140px;object-fit:cover}
+.card b{font-size:12px;display:block;padding:5px}
+.card button{width:92%;margin:6px;padding:9px;background:#4caf50;border:none;border-radius:8px;font-weight:900;cursor:pointer}
+#detail{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;z-index:1000;padding:12px;overflow:auto}
+#box{background:#143d1f;padding:14px;border-radius:12px;max-width:420px;margin:20px auto;border:2px solid #4caf50}
+input{width:100%;padding:11px;margin:5px 0;border-radius:7px;border:none}
+.wa{position:fixed;bottom:18px;right:12px;z-index:9999;background:#25D366;color:#fff;padding:14px 20px;border-radius:30px;text-decoration:none;font-weight:900;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.wa-del{position:fixed;bottom:18px;left:12px;z-index:9999;background:#ff9800;color:#000;padding:14px 16px;border-radius:30px;text-decoration:none;font-weight:900;box-shadow:0 4px 12px rgba(0,0,0,.5);font-size:13px}
+.modeBar{text-align:center;padding:6px;font-weight:900;font-size:12px}
+</style>
+</head><body>
+<header><h2>🚜 Agri Equipment Market</h2><p id="modeTxt">MAINNET - Real Pi</p></header>
+<div class="tabs">
+<button id="tabMain" class="tab active" onclick="setMode('mainnet')">🟢 MAINNET</button>
+<button id="tabTest" class="tab" onclick="setMode('testnet')">🟡 TESTNET</button>
+</div>
+<div id="modeBar" class="modeBar" style="background:#4caf50;color:#000">Mode: MAINNET - Real payments</div>
+
+<div class="grid" id="grid"><p style="padding:20px;text-align:center;grid-column:1/-1">Loading root images...</p></div>
+
+<div id="detail"><div id="box">
+<h3 id="dT"></h3>
+<img id="dI" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin:8px 0">
+<p id="dP" style="color:#4caf50;font-weight:900"></p>
+<p id="dMode" style="font-size:11px;color:#ffcc00;margin-bottom:6px"></p>
+<input id="dn" placeholder="Full Name *">
+<input id="dp" placeholder="Phone *">
+<input id="da" placeholder="Delivery Address *">
+<input id="dd" placeholder="Delivery Town / Province *">
+<button id="pb" onclick="Pay()" style="width:100%;padding:13px;background:#ffcc00;border:none;border-radius:10px;font-weight:900;margin-top:8px">💰 Pay with Pi</button>
+<button onclick="sendDeliveryWA()" style="width:100%;padding:11px;background:#25D366;border:none;border-radius:10px;font-weight:900;margin-top:8px">📦 WhatsApp for Delivery</button>
+<p id="ps" style="text-align:center;margin-top:8px;color:#ff0"></p>
+<button onclick="detail.style.display='none'" style="width:100%;margin-top:8px;padding:9px;background:#333;color:#fff;border:none;border-radius:8px">Close</button>
+</div></div>
+
+<div style="text-align:center;padding:16px;background:#0a2a12;border-top:2px solid #4caf50">
+<a href="mailto:agriequipmentmarket@gmail.com" style="color:#4caf50;font-weight:900;text-decoration:none;font-size:14px">📧 agriequipmentmarket@gmail.com</a>
+</div>
+
+<!-- FLOATING BUTTONS LIKE BUS COMPANY -->
+<a class="wa" href="https://wa.me/27607263726?text=Hi%20Agri%20Market%20I%20want%20equipment" target="_blank">💬 Sales</a>
+<a class="wa-del" href="https://wa.me/27607263726?text=Hi%20Agri%20Market%20Delivery%20enquiry:%20Where%20do%20you%20deliver?%20Cost?" target="_blank">🚚 Delivery</a>
+
+<script>
+let currentMode='mainnet';
+let products=[];let cur=null;
+let PiReady=false;
+
+function setMode(m){
+currentMode=m;
+localStorage.setItem('piMode',m);
+document.getElementById('tabMain').classList.toggle('active',m==='mainnet');
+document.getElementById('tabTest').classList.toggle('active',m==='testnet');
+if(m==='mainnet'){
+ document.getElementById('modeBar').innerText='Mode: MAINNET - Real Pi payments';
+ document.getElementById('modeBar').style.background='#4caf50';
+ document.getElementById('modeBar').style.color='#000';
+ document.getElementById('modeTxt').innerText='MAINNET - Real Pi';
+} else {
+ document.getElementById('modeBar').innerText='Mode: TESTNET - Test Pi only (Pi Browser Testnet)';
+ document.getElementById('modeBar').style.background='#ffcc00';
+ document.getElementById('modeBar').style.color='#000';
+ document.getElementById('modeTxt').innerText='TESTNET - Test Pi';
+}
+initPi();
+}
+function initPi(){
+ try{
+  Pi.init({version:"2.0",sandbox: currentMode==='testnet'});
+  PiReady=true;
+ }catch(e){console.log(e)}
+}
+setMode(localStorage.getItem('piMode')||'mainnet');
+
+async function loadRootImages(){
+try{
+const res=await fetch('https://api.github.com/repos/Ndhlovu36/Agricultural-equipment-Market/contents/');
+const files=await res.json();
+const imgs=files.filter(f=>f.name.match(/\.(jpg|jpeg|png|webp)$/i));
+if(imgs.length>0){
+ products=imgs.map((f,i)=>({
+  name:f.name.replace(/IMG-|WA|202609|_|-|\.jpg|\.jpeg/gi,' ').trim().substring(0,20) || `Equipment ${i+1}`,
+  price:5+Math.floor(Math.random()*18),
+  img:f.download_url,
+  fileName:f.name
+ }));
+ render(); return;
+}
+} catch(e){}
+ // fallback to your known names
+ const fallback=["IMG-20260916-WA0000.jpg","IMG-20260916-WA0001.jpg","IMG-20260916-WA0002.jpg","IMG-20260916-WA0003.jpg","IMG-20260916-WA0004.jpg","IMG-20260917-WA0000.jpg","IMG-20260917-WA0001.jpg","IMG-20260920-WA0000.jpg","IMG-20260920-WA0001.jpg","IMG-20260920-WA0002.jpg","IMG-20260920-WA0003.jpg","IMG-20260920-WA0004.jpg"];
+ products=fallback.map((n,i)=>({name:`Equipment ${i+1}`,price:8+i,img:n,fileName:n}));
+ render();
+}
+function render(){
+ document.getElementById('grid').innerHTML=products.map((p,i)=>`<div class="card"><img src="${p.img}" loading="lazy"><b>${p.name}<br><span style="color:#4caf50">$${p.price} Pi</span><br><small style="color:#ffcc00">${currentMode.toUpperCase()}</small></b><button onclick="openD(${i})">Buy Now</button></div>`).join('');
+}
+function openD(i){
+ cur=products[i];
+ document.getElementById('dT').innerText=cur.name;
+ document.getElementById('dP').innerText='$'+cur.price+' Pi - '+currentMode.toUpperCase();
+ document.getElementById('dMode').innerText='Mode: '+currentMode.toUpperCase()+' | File: '+cur.fileName;
+ document.getElementById('dI').src=cur.img;
+ document.getElementById('detail').style.display='block';
+}
+function sendDeliveryWA(){
+ let n=document.getElementById('dn').value||'Customer';
+ let ph=document.getElementById('dp').value||'';
+ let ad=document.getElementById('da').value||'';
+ let town=document.getElementById('dd').value||'';
+ let prod=cur?cur.name:'equipment';
+ let msg=`🚚 DELIVERY REQUEST%0AProduct: ${prod}%0AFile: ${cur?cur.fileName:''}%0APrice: $${cur?cur.price:''}%0AName: ${n}%0APhone: ${ph}%0AAddress: ${ad}%0ATown/Province: ${town}%0AMode: ${currentMode.toUpperCase()}%0APlease confirm delivery cost & time.`;
+ window.open(`https://wa.me/27607263726?text=${msg}`,'_blank');
+}
+async function Pay(){
+ let n=document.getElementById('dn').value,ph=document.getElementById('dp').value,ad=document.getElementById('da').value,town=document.getElementById('dd').value;
+ if(!n||!ph||!ad){document.getElementById('ps').innerText='Fill Name, Phone, Address';return}
+ try{await Pi.authenticate(['username','payments'],()=>{})}catch(e){document.getElementById('ps').innerText='Open in Pi Browser';return}
+ document.getElementById('pb').innerText='⌛ Processing '+currentMode+'...';
+ Pi.createPayment({amount:cur.price,memo:`${cur.name} ${currentMode}`,metadata:{name:n,phone:ph,addr:ad,town:town,file:cur.fileName,mode:currentMode}},{
+  onReadyForServerApproval: async pid=>{await fetch('/api/approve-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid})}).catch(()=>{})},
+  onReadyForServerCompletion: async (pid,txid)=>{
+   await fetch('/api/complete-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid,txid})}).catch(()=>{});
+   document.getElementById('ps').innerText='✅ '+currentMode.toUpperCase()+' Paid! Opening WhatsApp...';
+   document.getElementById('pb').innerText='✅ Paid';
+   let msg=`✅ NEW ${currentMode.toUpperCase()} ORDER%0AProduct: ${cur.name}%0AFile: ${cur.fileName}%0APrice: $${cur.price}%0AMode: ${currentMode}%0AName: ${n}%0APhone: ${ph}%0AAddress: ${ad}%0ATown: ${town}%0APayment ID: ${pid}%0ATX: ${txid}`;
+   window.open(`https://wa.me/27607263726?text=${msg}`,'_blank');
+  },
+  onCancel:()=>{document.getElementById('ps').innerText='Cancelled';document.getElementById('pb').innerText='Pay with Pi'},
+  onError:e=>{document.getElementById('ps').innerText='Error: '+e.message;document.getElementById('pb').innerText='Try Again'}
+ });
+}
+loadRootImages();
+</script></body></html>
