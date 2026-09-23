@@ -135,7 +135,7 @@ async function Pay(){
    await fetch('/api/complete-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:pid,txid})}).catch(()=>{});
    document.getElementById('ps').innerText='✅ '+currentMode.toUpperCase()+' Paid! Opening WhatsApp...';
    document.getElementById('pb').innerText='✅ Paid';
-   let msg=`✅ NEW ${currentMode.toUpperCase()} ORDER%0AProduct: ${cur.name}%0AFile: ${cur.fileName}%0APrice: $${cur.price}%0AMode: ${currentMode}%0AName: ${n}%0APhone: ${ph}%0AAddress: ${ad}%0ATown: ${town}%0APayment ID: ${pid}%0ATX: ${txid}`;
+   let msg=`✅ NEW ${currentMode.toUpperCase()} ORDER%0AProduct: ${cur.name}%0AFile: ${cur.fileName}%0APrice: ${cur.price}%0AMode: ${currentMode}%0AName: ${n}%0APhone: ${ph}%0AAddress: ${ad}%0ATown: ${town}%0APayment ID: ${pid}%0ATX: ${txid}`;
    window.open(`https://wa.me/27607263726?text=${msg}`,'_blank');
   },
   onCancel:()=>{document.getElementById('ps').innerText='Cancelled';document.getElementById('pb').innerText='Pay with Pi'},
