@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agri Market Pi - 2.5 to 9 Pi</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;background:#0a2a12;color:#fff;font-family:Arial}
+.top{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#123d1a;position:sticky;top:0;z-index:10}
+.tabs{display:flex;gap:6px}.tab{padding:6px 12px;border-radius:20px;background:#1a4d24;cursor:pointer;font-size:13px}.tab.active{background:#2ecc71;color:#000;font-weight:bold}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}.card{background:#123d1a;border-radius:10px;overflow:hidden;text-align:center;padding-bottom:6px}.card img{width:100%;height:150px;object-fit:cover}
+.pi{color:#2ecc71;font-weight:bold;margin:4px}.pi.test{color:#ffcc00}button{width:90%;margin:6px;background:#2ecc71;border:0;border-radius:6px;padding:9px;font-weight:bold;cursor:pointer}button.testprice{background:#ffcc00;color:#000}
+input,select,textarea{width:90%;padding:9px;margin:6px;border-radius:6px;border:0}.delivery{background:#fff;color:#000;padding:12px;border-radius:10px;margin:10px;text-align:left;border:2px solid #2ecc71}
+.status{margin:10px;padding:10px;background:#000;border-radius:8px;font-size:12px}.banner{padding:8px;text-align:center;font-weight:bold;background:#ffcc00;color:#000}
+</style></head><body>
+<div class="top"><div id="user">Not logged</div><div class="tabs"><div id="testTab" class="tab active" onclick="setNet(true)">Testnet 0.05</div><div id="mainTab" class="tab" onclick="setNet(false)">Mainnet 2.5-9</div></div><button onclick="login()" id="loginBtn" style="width:auto;padding:6px 14px">Login Pi</button></div>
+<div class="banner" id="banner">TEST: 0.05 Pi | MAINNET: 2.5 - 9 Pi</div>
+<div style="text-align:center;padding:8px"><input id="email" placeholder="Email for receipt *"></div>
+<div class="delivery"><b>📦 DELIVERY ADDRESS</b><br><select id="province"><option value="">-- Province --</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Western Cape</option><option>Eastern Cape</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Free State</option><option>Northern Cape</option></select><input id="city" placeholder="City *"><input id="street" placeholder="Street / Farm *"><input id="phone" placeholder="Phone *"><textarea id="instructions" style="width:90%;height:50px" placeholder="Delivery note"></textarea></div>
+<div id="status" class="status">Ready - 2.5 to 9 Pi - Fill address</div>
+<div class="grid" id="grid">Loading...</div>
+<script>
+const TEST_PRICE = 0.05;
+const REAL_PRICES = [2.5, 2.8, 3.0, 3.3, 3.6, 3.9, 4.1, 4.4, 4.7, 5.0, 5.2, 5.5, 5.8, 6.1, 6.4, 6.7, 7.0, 7.3, 7.6, 8.0, 8.3, 8.6, 8.8, 9.0];
+const names=["KUBOTA PRO 6000 Sprayer","JD X9 1100 Combine","JD 4120R Sprayer","CLAAS LEXION 8700","CASE 4540 Floater","JD 8R 410 + Disc","JD 8R Tillage","JD DB120 Planter","Kubota XTA Sprayer","JD 9RX 640","New Holland CR11","Fendt 1050 Vario","CAT Challenger","Case Quadtrac 715","JD S780 Combine","Fendt IDEAL 10T","Case IH Magnum 400","New Holland T9.700","Kubota M8-200","CLAAS Axion 960","Fruit Harvester - Apple","Kuhn Fertilizer 1","Fertilizer Spreader","Kverneland Fertilizer"];
+let isTestnet=true, currentUser=null;
+Pi.init({version:"2.0", sandbox:true});
+function setNet(t){isTestnet=t;document.getElementById('testTab').classList.toggle('active',t);document.getElementById('mainTab').classList.toggle('active',!t);Pi.init({version:"2.0", sandbox:t});document.getElementById('banner').innerText=t?`TEST: ${TEST_PRICE} Pi ALL`:`MAINNET: 2.5 Pi to 9 Pi`;render();}
+function onIncomplete(p){if(p.transaction&&p.transaction.txid){fetch("/api/complete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({paymentId:p.identifier,txid:p.transaction.txid})});}}
+function login(){let b=document.getElementById('loginBtn');b.innerText="⏳ Wait...";Pi.authenticate(["username","payments"],onIncomplete).then(a=>{currentUser=a.user;document.getElementById('user').innerText="Hi "+a.user.username;b.innerText="✅ "+a.user.username;}).catch(()=>{b.innerText="Login Pi";});}
+let imgs=[];fetch("https://api.github.com/repos/ndhlovu36/agricultural-equipment-market/contents").then(r=>r.json()).then(f=>{imgs=f.filter(x=>x.name.toLowerCase().endsWith(".jpg")).map(x=>x.download_url);render();});
+function render(){let h="";for(let i=0;i<24;i++){let pr=isTestnet?TEST_PRICE:REAL_PRICES[i];h+=`<div class=card><img src="${imgs[i%imgs.length]||''}" loading="lazy"><div style="font-size:11px;padding:4px;height:32px;overflow:hidden">${names[i]}</div><div class="pi ${isTestnet?'test':''}">${pr} Pi</div><button class="${isTestnet?'testprice':''}" onclick="buy(${pr},'${names[i]}')">Buy ${pr}
