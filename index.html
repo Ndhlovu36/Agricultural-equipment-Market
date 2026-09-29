@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agricultural Equipment Market - 28 Products</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<style>
+body{margin:0;background:#0a2a12;color:#fff;font-family:Arial}
+.header{background:#000;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #2ecc71;position:sticky;top:0;z-index:20}
+.header b{font-size:13px}.header small{color:#2ecc71;font-size:10px;display:block}
+.top{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#123d1a;flex-wrap:wrap;gap:6px}
+.tab{padding:6px 12px;border-radius:20px;background:#1a4d24;cursor:pointer;font-size:13px}.tab.active{background:#2ecc71;color:#000;font-weight:bold}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}
+.card{background:#123d1a;border-radius:10px;overflow:hidden;text-align:center;padding-bottom:6px;border:1px solid #1a4d24}
+.card img{width:100%;height:150px;object-fit:cover;background:#1a4d24;display:block}
+.pi{color:#2ecc71;font-weight:bold;margin:4px}.pi.test{color:#ffcc00}
+button{width:90%;margin:6px;background:#2ecc71;border:0;border-radius:6px;padding:9px;font-weight:bold;cursor:pointer}
+button.testprice{background:#ffcc00;color:#000}
+input,select,textarea{width:90%;padding:9px;margin:6px;border-radius:6px;border:0}
+.delivery{background:#fff;color:#000;padding:12px;border-radius:10px;margin:10px;text-align:left;border:2px solid #2ecc71}
+.status{margin:10px;padding:10px;background:#000;border-radius:8px;font-size:12px}
+.banner{padding:8px;text-align:center;font-weight:bold;background:#ffcc00;color:#000}
+.imgFallback{height:150px;display:flex;align-items:center;justify-content:center;background:#1a4d24;color:#2ecc71;font-weight:bold;font-size:24px}
+</style></head><body>
+<div class="header"><div><b>🚜 AGRICULTURAL EQUIPMENT MARKET</b><small>Hire Equipment with Pi - SA</small></div><div style="text-align:right"><div id="user" style="font-size:12px">Not logged</div><button onclick="login()" id="loginBtn" style="width:auto;padding:6px 12px;font-size:12px;margin:4px 0 0 0;background:#2ecc71;border:0;border-radius:6px;font-weight:bold">Login Pi</button></div></div>
+<div class="top"><div><span id="testTab" class="tab active" onclick="setNet(true)">Testnet 0.05</span> <span id="mainTab" class="tab" onclick="setNet(false)">Mainnet 2.5-10</span></div><div style="font-size:11px">Wallet: GA77..2JKM</div></div>
+<div class="banner" id="banner">TEST: 0.05 Pi | MAINNET: 2.5-10 Pi - FIXED NO BLACK BOX</div>
+<div style="text-align:center;padding:8px"><input id="email" placeholder="Email for receipt *"></div>
+<div class="delivery"><b>📦 DELIVERY ADDRESS</b><br><select id="province"><option value="">-- Province --</option><option>Gauteng</option><option>KwaZulu-Natal</option><option>Western Cape</option><option>Eastern Cape</option><option>Limpopo</option><option>Mpumalanga</option><option>North West</option><option>Free State</option><option>Northern Cape</option></select><input id="city" placeholder="City *"><input id="street" placeholder="Street / Farm *"><input id="phone" placeholder="Phone *"><textarea id="instructions" style="width:90%;height:50px" placeholder="Delivery note"></textarea></div>
+<div id="status" class="status">Ready - 28 Products - Fill address</div>
+<div class="grid" id="grid"></div>
+<script>
+const TEST_PRICE=0.05;
+const REAL_PRICES=[2.5,2.8,3.0,3.3,3.6,3.9,4.1,4.4,4.7,5.0,5.2,5.5,5.8,6.1,6.4,6.7,7.0,7.3,7.6,8.0,8.3,8.6,8.8,9.0,9.3,9.5,9.8,10.0];
+const names=["KUBOTA PRO 6000","JD X9 1100","JD 4120R","CLAAS LEXION 8700","CASE 4540","JD 8R 410 + Disc","JD 8R Tillage","JD DB120 Planter","Kubota XTA","JD 9RX 640","New Holland CR11","Fendt 1050","CAT Challenger","Case Quadtrac 715","JD S780","Fendt IDEAL 10T","Case Magnum 400","New Holland T9.700","Kubota M8-200","CLAAS Axion 960","Fruit Harvester","Kuhn Fertilizer 1","Fertilizer Spreader","Kverneland","Kubota M7-150","JD 6R 250","Deutz 9340","JD
